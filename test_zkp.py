@@ -1,4 +1,4 @@
-from .zkp import DiscreteLogInteractive,DiscreteLogNonInteractive, DiscreteLogEqualityNonInteractive
+from .zkp import *
 
 def test_discrete_log_interactive():
     

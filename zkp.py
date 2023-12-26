@@ -149,7 +149,13 @@ class DiscreteLogEqualityNonInteractive(ZeroKnowledgeProtocol):
         self._vH = pow(self._h, self._v, self._p)
 
     def challenge(self):
-        """ Initialize challenge values for DLEQ proof """
+        """
+        Computes the challenge value for the current instance.
+        Parameters:
+            None
+        Returns:
+            int: The computed challenge value.
+        """
         h = hashlib.md5()
         cha1 = str(self._vG)+str(self._vH)+str(self._g) + str(self._h)
         h.update(cha1.encode()) 
@@ -157,12 +163,22 @@ class DiscreteLogEqualityNonInteractive(ZeroKnowledgeProtocol):
         return self._c
 
     def response(self):
-        """ Compute the response based on the challenge """
+        """
+        Calculates the response value based on the current object state.
+        :return: The calculated response value.
+        """
         self._r = (self._v - self._x * self._c) % (self._p - 1)
         return self._r
 
     def verify(self, c, r):
-        """ Verify a DLEQ proof """
+        """
+        Verify DLEQ proof on a certain condition.
+        Args:
+            c (int): The first parameter representing a value.
+            r (int): The second parameter representing a value.
+        Returns:
+            None
+        """
         v1 = (pow(self._g, r, self._p) * pow(self._xG, c, self._p)) % self._p
         v2 = (pow(self._h, r, self._p) * pow(self._xH, c, self._p)) % self._p
 
