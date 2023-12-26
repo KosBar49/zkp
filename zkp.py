@@ -117,3 +117,57 @@ class DiscreteLogNonInteractive(ZeroKnowledgeProtocol):
         """
         check = (pow(self._g, r, self._p) * pow(self._y, c, self._p)) % self._p
         assert V == check
+
+class DiscreteLogEqualityNonInteractive(ZeroKnowledgeProtocol):
+    def __init__(self, g, xG, h, xH, p, x = None):
+        """
+        :param g: generator 1
+        :param xG: public key 1
+        :param h: generator 2
+        :param xH: public key 2
+        :param p: modulo
+        :param x: secret
+        """
+        self._p = p
+        self._g = g
+        self._xG = xG
+        self._h = h
+        self._xH = xH
+        self._x = x
+
+    def commitments(self):
+        """
+        Generates random values for the variables `self._v`, `self._vG`, and `self._vH`.
+        Parameters:
+            self (object): The instance of the class.
+        
+        Returns:
+            None
+        """
+        self._v = random.randint(0, self._p - 1)
+        self._vG = pow(self._g, self._v, self._p) 
+        self._vH = pow(self._h, self._v, self._p)
+
+    def challenge(self):
+        """ Initialize challenge values for DLEQ proof """
+        h = hashlib.md5()
+        cha1 = str(self._vG)+str(self._vH)+str(self._g) + str(self._h)
+        h.update(cha1.encode()) 
+        self._c = int(h.hexdigest(), 16)
+        return self._c
+
+    def response(self):
+        """ Compute the response based on the challenge """
+        self._r = (self._v - self._x * self._c) % (self._p - 1)
+        return self._r
+
+    def verify(self, c, r):
+        """ Verify a DLEQ proof """
+        v1 = (pow(self._g, r, self._p) * pow(self._xG, c, self._p)) % self._p
+        v2 = (pow(self._h, r, self._p) * pow(self._xH, c, self._p)) % self._p
+
+        cha1 = str(v1) + str(v2) + str(self._g) + str(self._h)
+        h = hashlib.md5()
+        h.update(cha1.encode())
+        c1 = int(h.hexdigest(), 16)
+        assert c == c1

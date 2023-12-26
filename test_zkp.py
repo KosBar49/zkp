@@ -1,4 +1,4 @@
-from .zkp import DiscreteLogInteractive,DiscreteLogNonInteractive
+from .zkp import DiscreteLogInteractive,DiscreteLogNonInteractive, DiscreteLogEqualityNonInteractive
 
 def test_discrete_log_interactive():
     
@@ -21,3 +21,15 @@ def test_discrete_log_noninteractive():
     r = proover.response()
     verifier = DiscreteLogNonInteractive(2, y, 13)
     verifier.verify(r, c, V)
+
+def test_discrete_log_equality_noninteractive():
+
+    y = 2**5
+    h = 3**5
+
+    proover = DiscreteLogEqualityNonInteractive(2, y, 3, h, 13, 5)
+    proover.commitments()
+    C = proover.challenge()
+    r = proover.response()
+    verifier = DiscreteLogEqualityNonInteractive(2, y, 3, h, 13)
+    verifier.verify(C, r)
