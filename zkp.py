@@ -64,7 +64,9 @@ class DiscreteLogInteractive(ZeroKnowledgeProtocol):
         assert pow( self._g, response, self._p ) == ( pow(self._y, self._challenge) * commitment ) % self._p
 
 class DiscreteLogNonInteractive(ZeroKnowledgeProtocol):
-    
+    """
+    Implementation based on https://asecuritysite.com/zero/nizkp2
+    """
     def __init__(self, g, y, p, x = None):
         """
         :param g: generator
@@ -78,6 +80,13 @@ class DiscreteLogNonInteractive(ZeroKnowledgeProtocol):
         self._x = x
 
     def challenge(self):
+        """
+        Generates a challenge for the user.
+        Parameters:
+            None
+        Returns:
+            A tuple containing the challenge value and the computed V value.
+        """
         chal = str(self._g) + str(self._x) + str(self._y)
         h = hashlib.md5()
         h.update(chal.encode())
@@ -87,8 +96,24 @@ class DiscreteLogNonInteractive(ZeroKnowledgeProtocol):
         return self._c, V
 
     def response(self):
+        """
+        Calculate the response value based on the current state of the object.
+        Returns:
+            int: The calculated response value.
+        """
         return (self._v - self._c * self._x) % (self._p - 1)
 
     def verify(self, r, c, V):
+        """
+        Verify the validity of a given signature.
+        Parameters:
+            r (int): The r value of the signature.
+            c (int): The c value of the signature.
+            V (int): The V value of the signature.
+        Returns:
+            None
+        Raises:
+            AssertionError: If the signature is invalid.
+        """
         check = (pow(self._g, r, self._p) * pow(self._y, c, self._p)) % self._p
         assert V == check
