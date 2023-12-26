@@ -1,5 +1,9 @@
 import random
 from abc import ABC, abstractmethod
+import hashlib
+
+from Crypto.Util.number import getPrime
+from Crypto.Random import get_random_bytes
 
 class ZeroKnowledgeProtocol(ABC):
     @abstractmethod
@@ -60,4 +64,31 @@ class DiscreteLogInteractive(ZeroKnowledgeProtocol):
         assert pow( self._g, response, self._p ) == ( pow(self._y, self._challenge) * commitment ) % self._p
 
 class DiscreteLogNonInteractive(ZeroKnowledgeProtocol):
-    pass
+    
+    def __init__(self, g, y, p, x = None):
+        """
+        :param g: generator
+        :param y: public key
+        :param p: modulo
+        :param x: secret
+        """
+        self._g = g
+        self._p = p
+        self._y = y
+        self._x = x
+
+    def challenge(self):
+        chal = str(self._g) + str(self._x) + str(self._y)
+        h = hashlib.md5()
+        h.update(chal.encode())
+        self._v = random.randint(0, self._p - 1)
+        V = pow(self._g, self._v, self._p)
+        self._c = int(h.hexdigest(), 16)
+        return self._c, V
+
+    def response(self):
+        return (self._v - self._c * self._x) % (self._p - 1)
+
+    def verify(self, r, c, V):
+        check = (pow(self._g, r, self._p) * pow(self._y, c, self._p)) % self._p
+        assert V == check
