@@ -119,6 +119,9 @@ class DiscreteLogNonInteractive(ZeroKnowledgeProtocol):
         assert V == check
 
 class DiscreteLogEqualityNonInteractive(ZeroKnowledgeProtocol):
+    """
+    Implementation based on https://asecuritysite.com/zero/dleq3
+    """
     def __init__(self, g, xG, h, xH, p, x = None):
         """
         :param g: generator 1
