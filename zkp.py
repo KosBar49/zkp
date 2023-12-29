@@ -2,8 +2,7 @@ import random
 from abc import ABC, abstractmethod
 import hashlib
 
-from Crypto.Util.number import getPrime
-from Crypto.Random import get_random_bytes
+from .elliptic_curve import EllipticCurve
 
 class ZeroKnowledgeProtocol(ABC):
     @abstractmethod
@@ -190,3 +189,14 @@ class DiscreteLogEqualityNonInteractive(ZeroKnowledgeProtocol):
         h.update(cha1.encode())
         c1 = int(h.hexdigest(), 16)
         assert c == c1
+
+class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocol):
+    
+    generator = None
+    supported_curves = ['secp192r1', 'ed448', 'ed25519']
+
+    def __init__(self, curve):
+        self._curve = EllipticCurve('secp256k1')
+        self._generator = self._curve.G
+
+
