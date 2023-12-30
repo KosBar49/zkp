@@ -221,3 +221,29 @@ class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
         yc = DiscreteLogNonInteractiveEcc.curve.scalar_mult(c, DiscreteLogNonInteractiveEcc.y)
         rhs = DiscreteLogNonInteractiveEcc.curve.point_add(t, yc)
         assert lhs == rhs
+
+
+class DiscreteLogEqualityNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
+
+    curve = get_curve('secp256k1')
+    
+    def __init__(self, x = None):
+        if x:
+            self._x = x
+            DiscreteLogEqualityNonInteractiveEcc.y = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(x, DiscreteLogEqualityNonInteractiveEcc.curve.g)
+
+    def response(self, g, h, P, Q):
+        r = DiscreteLogEqualityNonInteractiveEcc.curve.get_random()
+        t1 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(r, g)
+        t2 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(r, h)
+        c = DiscreteLogEqualityNonInteractiveEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        s = ((r + c * self._x) % DiscreteLogNonInteractiveEcc.curve.order )
+        return t1, t2, s
+
+    def verify(self, g, h, P, Q, t1, t2, s):
+        c = DiscreteLogEqualityNonInteractiveEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        lhs1 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(s,g)
+        rhs1 = DiscreteLogEqualityNonInteractiveEcc.curve.point_add(t1, DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(c, P))
+        lhs2 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(s,h)
+        rhs2 = DiscreteLogEqualityNonInteractiveEcc.curve.point_add(t2, DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(c, Q))
+        assert (lhs1 == rhs1) and (lhs2 == rhs2)

@@ -39,3 +39,11 @@ def test_discrete_log_ecc():
     (t, s) = client.response()
     proover = DiscreteLogNonInteractiveEcc()
     proover.verify(t, s)
+
+
+def test_discrete_log_equality_ecc():
+    client = DiscreteLogEqualityNonInteractiveEcc(5)
+    g, h = DiscreteLogEqualityNonInteractiveEcc.curve.get_generators(2)
+    P = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(5, g)
+    Q = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(3, h)
+    (t1, t2, s) = client.response(g, h, P, Q)
