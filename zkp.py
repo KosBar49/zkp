@@ -230,7 +230,6 @@ class DiscreteLogEqualityNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
     def __init__(self, x = None):
         if x:
             self._x = x
-            DiscreteLogEqualityNonInteractiveEcc.y = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(x, DiscreteLogEqualityNonInteractiveEcc.curve.g)
 
     def response(self, g, h, P, Q):
         r = DiscreteLogEqualityNonInteractiveEcc.curve.get_random()

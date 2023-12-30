@@ -42,8 +42,11 @@ def test_discrete_log_ecc():
 
 
 def test_discrete_log_equality_ecc():
-    client = DiscreteLogEqualityNonInteractiveEcc(5)
+    secret = 5
+    client = DiscreteLogEqualityNonInteractiveEcc(secret)
     g, h = DiscreteLogEqualityNonInteractiveEcc.curve.get_generators(2)
-    P = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(5, g)
-    Q = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(3, h)
+    P = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(secret, g)
+    Q = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(secret, h)
     (t1, t2, s) = client.response(g, h, P, Q)
+    proover = DiscreteLogEqualityNonInteractiveEcc()
+    proover.verify(g, h, P, Q, t1, t2, s)
