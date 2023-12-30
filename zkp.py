@@ -2,7 +2,7 @@ import random
 from abc import ABC, abstractmethod
 import hashlib
 
-from .elliptic_curve import EllipticCurve
+from .elliptic_curve import get_curve
 
 class ZeroKnowledgeProtocol(ABC):
     @abstractmethod
@@ -17,6 +17,15 @@ class ZeroKnowledgeProtocol(ABC):
     def verify(self, statement, proof):
         pass
 
+
+class ZeroKnowledgeProtocolEcc(ABC):
+    @abstractmethod
+    def response(self, statement):
+        pass
+
+    @abstractmethod
+    def verify(self, statement, proof):
+        pass
 
 class DiscreteLogInteractive(ZeroKnowledgeProtocol):
 
@@ -190,13 +199,25 @@ class DiscreteLogEqualityNonInteractive(ZeroKnowledgeProtocol):
         c1 = int(h.hexdigest(), 16)
         assert c == c1
 
-class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocol):
+class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
+
+    curve = get_curve('secp256k1')
     
-    generator = None
-    supported_curves = ['secp192r1', 'ed448', 'ed25519']
+    def __init__(self, x = None):
+        if x:
+            self._x = x
+            DiscreteLogNonInteractiveEcc.y = DiscreteLogNonInteractiveEcc.curve.scalar_mult(x, DiscreteLogNonInteractiveEcc.curve.g)
 
-    def __init__(self, curve):
-        self._curve = EllipticCurve('secp256k1')
-        self._generator = self._curve.G
+    def response(self):
+        r  = DiscreteLogNonInteractiveEcc.curve.get_random()
+        t =  DiscreteLogNonInteractiveEcc.curve.scalar_mult(r, DiscreteLogNonInteractiveEcc.curve.g)
+        c = DiscreteLogNonInteractiveEcc.curve.hash_points( [ DiscreteLogNonInteractiveEcc.curve.g, DiscreteLogNonInteractiveEcc.y, t ] )
+        s = ((r + c * self._x) % DiscreteLogNonInteractiveEcc.curve.order )
+        return t, s
 
-
+    def verify(self, t, s):
+        c = DiscreteLogNonInteractiveEcc.curve.hash_points( [ DiscreteLogNonInteractiveEcc.curve.g, DiscreteLogNonInteractiveEcc.y, t ] )
+        lhs = DiscreteLogNonInteractiveEcc.curve.scalar_mult(s, DiscreteLogNonInteractiveEcc.curve.g)
+        yc = DiscreteLogNonInteractiveEcc.curve.scalar_mult(c, DiscreteLogNonInteractiveEcc.y)
+        rhs = DiscreteLogNonInteractiveEcc.curve.point_add(t, yc)
+        assert lhs == rhs

@@ -4,7 +4,7 @@ from hashlib import sha512, sha256, md5, sha1
 
 class EllipticCurve(ecc.Curve):
 
-    supported_hash_functions = { 'md5' : md5(), 'sha1' : sha1(), 'sha256' : sha256(), 'sha512' : sha512() }
+    supported_hash_functions = { 'md5' : md5, 'sha1' : sha1, 'sha256' : sha256, 'sha512' : sha512 }
 
     def __init__(self, type_, a, b, G, p, n):
         super().__init__(a, b, p, G, order=n)
@@ -15,26 +15,148 @@ class EllipticCurve(ecc.Curve):
         self.p = p
         self.n = n
 
-    def __str__(self):
-        return f"Curve: {self._type}\nParameters:\n a={self.a}\n b={self.b}\n G={self.G}\n p={self.p}\n n={self.n}"
+    # def __str__(self):
+    #     return f"Curve: {self._type}\nParameters:\n a={self.a}\n b={self.b}\n G={self.G}\n p={self.p}\n n={self.n}"
     
     def get_generators(self, n = 1):
         
         gs = []
         G = self.g
         for _ in range(n):
-            s = random.randint(0,self.order-1)
+            s = random.randint(0,self.n-1)
             gs.append(self.power(G, s))
         return gs
     
-    def hash_list(self, list_, hash_function = 'md5'):
-
-        hash= self.supported_hash_functions.get(hash_function, None)
+    def hash_list(self, list_, hash_function = 'sha1'):
+        hash =  EllipticCurve.supported_hash_functions.get(hash_function, None)()
         if not hash:
             raise ValueError(f'Unsupported hash function: {hash_function}')
         for item in list_:
-            hash.updat(item)
+            
+            hash.update(item)
         return int(hash.hexdigest(), 16)
+    
+    def hash_points(self, points):
+        return self.hash_list([str(point).encode() for point in points])
+    
+    def get_random(self):
+        return random.randint(0, self.n - 1)
+
+    def inverse_mod(self, k, p):
+        """Returns the inverse of k modulo p.
+        This function returns the only integer x such that (x * k) % p == 1.
+        k must be non-zero and p must be a prime.
+        """
+        if k == 0:
+            raise ZeroDivisionError('division by zero')
+
+        if k < 0:
+            # k ** -1 = p - (-k) ** -1  (mod p)
+            return p - self.inverse_mod(-k, p)
+
+        # Extended Euclidean algorithm.
+        s, old_s = 0, 1
+        t, old_t = 1, 0
+        r, old_r = p, k
+
+        while r != 0:
+            quotient = old_r // r
+            old_r, r = r, old_r - quotient * r
+            old_s, s = s, old_s - quotient * s
+            old_t, t = t, old_t - quotient * t
+
+        gcd, x, _ = old_r, old_s, old_t
+
+        assert gcd == 1
+        assert (k * x) % p == 1
+
+        return x % p
+
+    def point_add(self, point1, point2):
+        """Returns the result of point1 + point2 according to the group law."""
+        assert self.is_on_curve(point1)
+        assert self.is_on_curve(point2)
+
+        if point1 is None:
+            # 0 + point2 = point2
+            return point2
+        if point2 is None:
+            # point1 + 0 = point1
+            return point1
+
+        x1, y1 = point1
+        x2, y2 = point2
+
+        if x1 == x2 and y1 != y2:
+            # point1 + (-point1) = 0
+            return None
+
+        if x1 == x2:
+            # This is the case point1 == point2.
+            m = (3 * x1 * x1 + self.a) * self.inverse_mod(2 * y1, self.p)
+        else:
+            # This is the case point1 != point2.
+            m = (y1 - y2) * self.inverse_mod(x1 - x2, self.p)
+
+        x3 = m * m - x1 - x2
+        y3 = y1 + m * (x3 - x1)
+        result = (x3 % self.p, -y3 % self.p)
+
+        assert self.is_on_curve(result)
+
+        return result
+
+    def is_on_curve(self, point):
+        """Returns True if the given point lies on the elliptic curve."""
+        if point is None:
+            # None represents the point at infinity.
+            return True
+        x, y = point
+
+        return (y * y - x * x * x - self.a * x - self.b) % self.p == 0 
+
+    def scalar_mult(self, k, point):
+        """Returns k * point computed using the double and point_add algorithm."""
+        assert self.is_on_curve(point)
+
+        if k % self.n == 0 or point is None:
+            return None
+
+        if k < 0:
+            # k * point = -k * (-point)
+            return self.scalar_mult(-k, self.point_neg(point))
+
+        result = None
+        addend = point
+
+        while k:
+            if k & 1:
+                # Add.
+                result = self.point_add(result, addend)
+
+            # Double.
+            addend = self.point_add(addend, addend)
+
+            k >>= 1
+
+        assert self.is_on_curve(result)
+
+        return result
+
+    def point_neg(self, point):
+        """Returns -point."""
+        assert self.is_on_curve(point)
+
+        if point is None:
+            # -0 = 0
+            return None
+
+        x, y = point
+        result = (x, -y % self.p)
+
+        assert self.is_on_curve(result)
+
+        return result
 
 def get_curve(type_):
     supported_curves = ['secp256k1', 'ed25519']
@@ -60,11 +182,6 @@ def get_curve(type_):
         return curves.get(type_, None)
     else:
         raise ValueError(f"{type_} not supported")
-
-curve = get_curve('secp256k1')
-print(curve.g)
-print(curve.power(curve.g, 2))
-print(curve.get_generators(3))
 
 # elif (mytype=="Curve25519"):
 #   print ("Curve 25519 - Weierstrass")

@@ -33,3 +33,9 @@ def test_discrete_log_equality_noninteractive():
     r = proover.response()
     verifier = DiscreteLogEqualityNonInteractive(2, y, 3, h, 13)
     verifier.verify(C, r)
+
+def test_discrete_log_ecc():
+    client = DiscreteLogNonInteractiveEcc(5)
+    (t, s) = client.response()
+    proover = DiscreteLogNonInteractiveEcc()
+    proover.verify(t, s)
