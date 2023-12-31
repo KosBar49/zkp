@@ -204,11 +204,26 @@ class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
     curve = get_curve('secp256k1')
     
     def __init__(self, x = None):
+        """
+        Initializes the object with an optional value for x.
+        Parameters:
+            x (optional): An optional value for x.
+        Returns:
+            None
+        """
         if x:
             self._x = x
             DiscreteLogNonInteractiveEcc.y = DiscreteLogNonInteractiveEcc.curve.scalar_mult(x, DiscreteLogNonInteractiveEcc.curve.g)
 
     def response(self):
+        """
+        Generate a response using the DiscreteLogNonInteractiveEcc algorithm.
+        
+        Returns:
+            tuple: A tuple containing the calculated values t and s.
+                - t (Point): The calculated point t.
+                - s (int): The calculated value s.
+        """
         r  = DiscreteLogNonInteractiveEcc.curve.get_random()
         t =  DiscreteLogNonInteractiveEcc.curve.scalar_mult(r, DiscreteLogNonInteractiveEcc.curve.g)
         c = DiscreteLogNonInteractiveEcc.curve.hash_points( [ DiscreteLogNonInteractiveEcc.curve.g, DiscreteLogNonInteractiveEcc.y, t ] )
@@ -216,6 +231,19 @@ class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
         return t, s
 
     def verify(self, t, s):
+        """
+        Verify the equality of two values by performing a discrete logarithm non-interactive elliptic curve cryptography (ECC) verification.
+        
+        Args:
+            t: The first value to be verified.
+            s: The second value to be verified.
+        
+        Returns:
+            None
+            
+        Raises:
+            AssertionError: If the verification fails (i.e., the values are not equal).
+        """
         c = DiscreteLogNonInteractiveEcc.curve.hash_points( [ DiscreteLogNonInteractiveEcc.curve.g, DiscreteLogNonInteractiveEcc.y, t ] )
         lhs = DiscreteLogNonInteractiveEcc.curve.scalar_mult(s, DiscreteLogNonInteractiveEcc.curve.g)
         yc = DiscreteLogNonInteractiveEcc.curve.scalar_mult(c, DiscreteLogNonInteractiveEcc.y)
@@ -228,10 +256,29 @@ class DiscreteLogEqualityNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
     curve = get_curve('P192')
     
     def __init__(self, x = None):
+        """
+        Initializes an instance of the class.
+        
+        Parameters:
+            x (optional): The value to assign to the private attribute _x.
+        
+        Returns:
+            None
+        """
         if x:
             self._x = x
 
     def response(self, g, h, P, Q):
+        """
+        Calculates the response for the given parameters.
+        Args:
+            g (Point): The base point of the curve.
+            h (Point): Another point on the curve.
+            P (Point): A point on the curve.
+            Q (Point): Another point on the curve.
+        Returns:
+            Tuple[Point, Point, int]: A tuple containing the calculated points t1 and t2, and the calculated integer s.
+        """
         r = DiscreteLogEqualityNonInteractiveEcc.curve.get_random()
         t1 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(r, g)
         t2 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(r, h)
@@ -240,6 +287,21 @@ class DiscreteLogEqualityNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
         return t1, t2, s
 
     def verify(self, g, h, P, Q, t1, t2, s):
+        """
+        Verify the equality of two discrete logarithms.
+        Args:
+            g (Point): The base point of the first logarithm.
+            h (Point): The base point of the second logarithm.
+            P (Point): The first point on the elliptic curve.
+            Q (Point): The second point on the elliptic curve.
+            t1 (Point): The first temporary point.
+            t2 (Point): The second temporary point.
+            s (Scalar): The scalar value.
+        Returns:
+            None
+        Raises:
+            AssertionError: If the equality of the discrete logarithms is not verified.
+        """
         c = DiscreteLogEqualityNonInteractiveEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
         lhs1 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(s,g)
         rhs1 = DiscreteLogEqualityNonInteractiveEcc.curve.point_add(t1, DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(c, P))
