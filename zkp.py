@@ -225,7 +225,7 @@ class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
 
 class DiscreteLogEqualityNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
 
-    curve = get_curve('secp256k1')
+    curve = get_curve('P192')
     
     def __init__(self, x = None):
         if x:
