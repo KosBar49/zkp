@@ -17,7 +17,6 @@ class ZeroKnowledgeProtocol(ABC):
     def verify(self, statement, proof):
         pass
 
-
 class ZeroKnowledgeProtocolEcc(ABC):
     @abstractmethod
     def response(self, statement):
@@ -250,7 +249,6 @@ class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
         rhs = DiscreteLogNonInteractiveEcc.curve.point_add(t, yc)
         assert lhs == rhs
 
-
 class DiscreteLogEqualityNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
 
     curve = get_curve('P192')
@@ -303,8 +301,60 @@ class DiscreteLogEqualityNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
             AssertionError: If the equality of the discrete logarithms is not verified.
         """
         c = DiscreteLogEqualityNonInteractiveEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
-        lhs1 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(s,g)
+        lhs1 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(s, g)
         rhs1 = DiscreteLogEqualityNonInteractiveEcc.curve.point_add(t1, DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(c, P))
         lhs2 = DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(s,h)
         rhs2 = DiscreteLogEqualityNonInteractiveEcc.curve.point_add(t2, DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(c, Q))
         assert (lhs1 == rhs1) and (lhs2 == rhs2)
+        
+class DiscreteLogConjunction(ZeroKnowledgeProtocolEcc):
+    
+    curve = get_curve('P192')
+    
+    def __init__(self, x = None, y = None):
+        
+        if x and y:
+            self._x = x
+            self._y = y
+            
+    def response(self, g, h, P, Q):
+        """
+        Calculates the response for the given parameters.
+        Args:
+            g (Point): The base point of the curve.
+            h (Point): Another point on the curve.
+            P (Point): A point on the curve.
+            Q (Point): Another point on the curve.
+        Returns:
+            Tuple[Point, Point, int]: A tuple containing the calculated points t1 and t2, and the calculated integer s.
+        """
+        r1 = DiscreteLogConjunction.curve.get_random()
+        r2 = DiscreteLogConjunction.curve.get_random()
+        t1 = DiscreteLogConjunction.curve.scalar_mult(r1, g)
+        t2 = DiscreteLogConjunction.curve.scalar_mult(r2, h)
+        c = DiscreteLogConjunction.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        s1 = ((r1 + c * self._x) % DiscreteLogConjunction.curve.order )
+        s2 = ((r2 + c * self._y) % DiscreteLogConjunction.curve.order )
+        return (t1, s1), (t2, s2)
+    
+    def verify(self, g, h, P, Q, t1s1, t2s2):
+        """
+        Verify the validity of a given signature.
+        Parameters:
+            r (int): The r value of the signature.
+            c (int): The c value of the signature.
+            V (int): The V value of the signature.
+        Returns:
+            None
+        Raises:
+            AssertionError: If the signature is invalid.
+        """
+        (t1, s1) = t1s1
+        (t2, s2) = t2s2
+        c = DiscreteLogConjunction.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        lhs1 = DiscreteLogConjunction.curve.scalar_mult(s1, g)
+        rhs1 = DiscreteLogConjunction.curve.point_add(t1, DiscreteLogConjunction.curve.scalar_mult(c, P))
+        lhs2 = DiscreteLogConjunction.curve.scalar_mult(s2, h)
+        rhs2 = DiscreteLogConjunction.curve.point_add(t2, DiscreteLogConjunction.curve.scalar_mult(c, Q))
+        assert (lhs1 == rhs1) 
+        assert (lhs2 == rhs2)

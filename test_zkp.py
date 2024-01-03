@@ -50,3 +50,14 @@ def test_discrete_log_equality_ecc():
     (t1, t2, s) = client.response(g, h, P, Q)
     proover = DiscreteLogEqualityNonInteractiveEcc()
     proover.verify(g, h, P, Q, t1, t2, s)
+    
+def test_discrete_log_conjunction():
+    secret = 5
+    secret_2 = 7
+    client = DiscreteLogConjunction(secret, secret_2)
+    g, h = DiscreteLogConjunction.curve.get_generators(2)
+    P = DiscreteLogConjunction.curve.scalar_mult(secret, g)
+    Q = DiscreteLogConjunction.curve.scalar_mult(secret_2, h)
+    (t1, s1), (t2, s2) = client.response(g, h, P, Q)
+    proover = DiscreteLogConjunction()
+    proover.verify(g, h, P, Q, (t1, s1), (t2, s2))
