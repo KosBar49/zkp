@@ -61,3 +61,14 @@ def test_discrete_log_conjunction():
     (t1, s1), (t2, s2) = client.response(g, h, P, Q)
     proover = DiscreteLogConjunction()
     proover.verify(g, h, P, Q, (t1, s1), (t2, s2))
+    
+def test_discrete_log_disjunction():
+    secret = 5
+    client = DiscreteLogDisjunction(secret)
+    g, h = DiscreteLogDisjunction.curve.get_generators(2)
+    P = DiscreteLogDisjunction.curve.scalar_mult(secret, g)
+    b = DiscreteLogDisjunction.curve.get_random()
+    Q = DiscreteLogDisjunction.curve.scalar_mult(b, h)
+    t1c1s1, t2c2s2 = client.response(g, h, P, Q)
+    proover = DiscreteLogDisjunction()
+    proover.verify(g, h, P, Q, t1c1s1, t2c2s2)

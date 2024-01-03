@@ -358,3 +358,46 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolEcc):
         rhs2 = DiscreteLogConjunction.curve.point_add(t2, DiscreteLogConjunction.curve.scalar_mult(c, Q))
         assert (lhs1 == rhs1) 
         assert (lhs2 == rhs2)
+        
+class DiscreteLogDisjunction(ZeroKnowledgeProtocolEcc):
+    
+    curve = get_curve('P192')
+    
+    def __init__(self, x = None):
+        if x:
+            self._x = x
+            
+    def response(self, g, h, P, Q):
+        
+        r1 = DiscreteLogDisjunction.curve.get_random()
+        c2 = DiscreteLogDisjunction.curve.get_random()
+        s2 = DiscreteLogConjunction.curve.get_random() 
+        
+        t1 = DiscreteLogDisjunction.curve.scalar_mult(r1, g)
+        t2 = DiscreteLogDisjunction.curve.point_add(DiscreteLogDisjunction.curve.scalar_mult(s2, h), DiscreteLogDisjunction.curve.scalar_mult((0-c2), Q))
+        c = DiscreteLogDisjunction.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        c1 = (c - c2) % DiscreteLogConjunction.curve.order
+        s1 = ((r1 + c1 * self._x) % DiscreteLogConjunction.curve.order )
+        return (t1, c1, s1), (t2, c2, s2)
+    
+    def verify(self, g, h, P, Q, t1cs1, t2cs2):
+        """
+        Verify the validity of a given signature.
+        Parameters:
+            r (int): The r value of the signature.
+            c (int): The c value of the signature.
+            V (int): The V value of the signature.
+        Returns:
+            None
+        Raises:
+            AssertionError: If the signature is invalid.
+        """
+        (t1, c1, s1) = t1cs1
+        (t2, c2, s2) = t2cs2
+        c = DiscreteLogDisjunction.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        assert (c == (c1 + c2) % DiscreteLogConjunction.curve.order )
+        lhs1 = DiscreteLogDisjunction.curve.scalar_mult(s1, g)
+        rhs1 = DiscreteLogDisjunction.curve.point_add(t1, DiscreteLogDisjunction.curve.scalar_mult(c1, P))
+        lhs2 = DiscreteLogDisjunction.curve.scalar_mult(s2, h)
+        rhs2 = DiscreteLogDisjunction.curve.point_add(t2, DiscreteLogDisjunction.curve.scalar_mult(c2, Q))
+        assert (lhs1 == rhs1) and (lhs2 == rhs2)
