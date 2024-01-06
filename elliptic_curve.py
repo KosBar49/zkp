@@ -29,13 +29,13 @@ class EllipticCurve(ecc.Curve):
             gs.append(self.power(G, s))
         return gs
 
-    def hash_list(self, list_, hash_function='sha1'):
+    def hash_list(self, list_, hash_function='sha256'):
         hash = EllipticCurve.supported_hash_functions.get(
             hash_function, None)()
         if not hash:
             raise ValueError(f'Unsupported hash function: {hash_function}')
         for item in list_:
-
+            print(f"hashing {item}")
             hash.update(item)
         return int(hash.hexdigest(), 16)
 
@@ -163,7 +163,7 @@ class EllipticCurve(ecc.Curve):
 
 
 def get_curve(type_):
-    supported_curves = ['secp256k1', 'P192']
+    supported_curves = ['secp256k1', "secp256r1", 'P192']
     curves = {
         "secp256k1": EllipticCurve(
             "secp256k1",
@@ -173,6 +173,15 @@ def get_curve(type_):
              32670510020758816978083085130507043184471273380659243275938904335757337482424),
             115792089237316195423570985008687907853269984665640564039457584007908834671663,
             115792089237316195423570985008687907852837564279074904382605163141518161494337
+        ),
+        "secp256r1": EllipticCurve(
+            "secp256r1",
+            0xffffffff00000001000000000000000000000000fffffffffffffffffffffffc,
+            0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b,
+            (0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296, 
+             0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5),
+            0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff,
+            115792089210356248762697446949407573529996955224135760342422259061068512044369
         ),
         "curve25519": EllipticCurve(
             "curve25519",
