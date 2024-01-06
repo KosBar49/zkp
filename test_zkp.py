@@ -75,3 +75,25 @@ def test_discrete_log_disjunction():
     t1c1s1, t2c2s2 = client.response(g, h, P, Q)
     proover = DiscreteLogDisjunction()
     proover.verify(g, h, P, Q, t1c1s1, t2c2s2)
+    
+def test_pederesen_commitment():
+    secret = 5
+    secret_2 = 7
+    client = PedersenCommitment(secret, secret_2)
+    g, h = PedersenCommitment.curve.get_generators(2)
+    P = PedersenCommitment.curve.point_add(PedersenCommitment.curve.scalar_mult(secret, g), PedersenCommitment.curve.scalar_mult(secret_2, h))
+    (t, s1, s2) = client.response(g, h, P)
+    proover = PedersenCommitment()
+    proover.verify(g, h, P, t, s1, s2)
+    
+def test_pederesen_commitment_eq_message_randomness():
+    secret = 5
+    secret_2 = 7
+    client = PederesenCommitmentEqual(secret, secret_2)
+    g1, h1, g2, h2 = PederesenCommitmentEqual.curve.get_generators(4)
+    P = PederesenCommitmentEqual.curve.point_add(PederesenCommitmentEqual.curve.scalar_mult(secret, g1), PederesenCommitmentEqual.curve.scalar_mult(secret_2, h1))
+    Q = PederesenCommitmentEqual.curve.point_add(PederesenCommitmentEqual.curve.scalar_mult(secret, g2), PederesenCommitmentEqual.curve.scalar_mult(secret_2, h2))
+    (t1, s1), (t2, s2) = client.response(g1, h1, g2, h2, P, Q)
+    proover = PederesenCommitmentEqual()
+    proover.verify(g1, h1, g2, h2, P, Q, (t1, s1), (t2, s2))
+    
