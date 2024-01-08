@@ -1,6 +1,7 @@
 import random
-from abc import ABC, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 import hashlib
+from re import L
 
 from .elliptic_curve import get_curve
 
@@ -25,6 +26,64 @@ class ZeroKnowledgeProtocolEcc(ABC):
     @abstractmethod
     def verify(self, statement, proof):
         pass
+
+class DiscreteLogConjunction(ZeroKnowledgeProtocol):
+
+    def __init__(self, g, h, P, Q, p, a=None, b=None):
+        """
+        Initialize the protocol parameters.
+        :param g, h: Generators of the group.
+        :param P, Q: Public values such that P = g^a and Q = h^b.
+        :param a, b: Secret values.
+        :param p: Prime modulus (optional for large groups).
+        """
+        self._g = g
+        self._h = h
+        self._P = P
+        self._Q = Q
+        self._a = a
+        self._b = b
+        self._p = p
+
+    def commitment(self):
+        """
+        Generates commitments by the prover.
+        :return: Tuple of commitments (g^r1, h^r2).
+        """
+        self._r1 = random.randint(0, self._p - 1) if self._p else random.randint(0, 2**128)
+        self._r2 = random.randint(0, self._p - 1) if self._p else random.randint(0, 2**128)
+        commitment1 = pow(self._g, self._r1, self._p) if self._p else pow(self._g, self._r1)
+        commitment2 = pow(self._h, self._r2, self._p) if self._p else pow(self._h, self._r2)
+        return commitment1, commitment2
+    
+    def challenge(self):
+        """
+        Generates a challenge by the verifier.
+        :return: Challenge (random integer).
+        """
+        self._challenge = random.randint(1, self._p - 1) if self._p else random.randint(1, 2**128)
+        return self._challenge
+    
+    def response(self):
+        """
+        Generates responses by the prover using the challenge.
+        :param challenge: Challenge value from the verifier.
+        :return: Tuple of responses (s1, s2).
+        """
+        s1 = (self._r1 + self._challenge * self._a) % (self._p - 1) #if self._p else 2**129)
+        s2 = (self._r2 + self._challenge * self._b) % (self._p - 1) #if self._p else 2**129)
+        return s1, s2
+
+    def verify(self, commitment1, commitment2, response1, response2, challange):
+        """
+        Verifies the responses from the prover.
+        """
+        lhs1 = pow(self._g, response1, self._p) if self._p else pow(self._g, response1)
+        lhs2 = pow(self._h, response2, self._p) if self._p else pow(self._h, response2)
+        rhs1 = (commitment1 * pow(self._P, challange, self._p)) % self._p #if self._p else commitment1 * pow(self._P, self._challenge)
+        rhs2 = (commitment2 * pow(self._Q, challange, self._p)) % self._p #if self._p else commitment2 * pow(self._Q, self._challenge)
+        assert lhs1 == rhs1
+        assert lhs2 == rhs2
 
 class DiscreteLogInteractive(ZeroKnowledgeProtocol):
 
@@ -307,7 +366,7 @@ class DiscreteLogEqualityNonInteractiveEcc(ZeroKnowledgeProtocolEcc):
         rhs2 = DiscreteLogEqualityNonInteractiveEcc.curve.point_add(t2, DiscreteLogEqualityNonInteractiveEcc.curve.scalar_mult(c, Q))
         assert (lhs1 == rhs1) and (lhs2 == rhs2)
         
-class DiscreteLogConjunction(ZeroKnowledgeProtocolEcc):
+class DiscreteLogConjunctionEcc(ZeroKnowledgeProtocolEcc):
     
     curve = get_curve('secp256r1')
     
@@ -328,13 +387,13 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolEcc):
         Returns:
             Tuple[Point, Point, int]: A tuple containing the calculated points t1 and t2, and the calculated integer s.
         """
-        r1 = DiscreteLogConjunction.curve.get_random()
-        r2 = DiscreteLogConjunction.curve.get_random()
-        t1 = DiscreteLogConjunction.curve.scalar_mult(r1, g)
-        t2 = DiscreteLogConjunction.curve.scalar_mult(r2, h)
-        c = DiscreteLogConjunction.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
-        s1 = ((r1 + c * self._x) % DiscreteLogConjunction.curve.order )
-        s2 = ((r2 + c * self._y) % DiscreteLogConjunction.curve.order )
+        r1 = DiscreteLogConjunctionEcc.curve.get_random()
+        r2 = DiscreteLogConjunctionEcc.curve.get_random()
+        t1 = DiscreteLogConjunctionEcc.curve.scalar_mult(r1, g)
+        t2 = DiscreteLogConjunctionEcc.curve.scalar_mult(r2, h)
+        c = DiscreteLogConjunctionEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        s1 = ((r1 + c * self._x) % DiscreteLogConjunctionEcc.curve.order )
+        s2 = ((r2 + c * self._y) % DiscreteLogConjunctionEcc.curve.order )
         return (t1, s1), (t2, s2)
     
     def verify(self, g, h, P, Q, t1s1, t2s2):
@@ -351,11 +410,11 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolEcc):
         """
         (t1, s1) = t1s1
         (t2, s2) = t2s2
-        c = DiscreteLogConjunction.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
-        lhs1 = DiscreteLogConjunction.curve.scalar_mult(s1, g)
-        rhs1 = DiscreteLogConjunction.curve.point_add(t1, DiscreteLogConjunction.curve.scalar_mult(c, P))
-        lhs2 = DiscreteLogConjunction.curve.scalar_mult(s2, h)
-        rhs2 = DiscreteLogConjunction.curve.point_add(t2, DiscreteLogConjunction.curve.scalar_mult(c, Q))
+        c = DiscreteLogConjunctionEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        lhs1 = DiscreteLogConjunctionEcc.curve.scalar_mult(s1, g)
+        rhs1 = DiscreteLogConjunctionEcc.curve.point_add(t1, DiscreteLogConjunctionEcc.curve.scalar_mult(c, P))
+        lhs2 = DiscreteLogConjunctionEcc.curve.scalar_mult(s2, h)
+        rhs2 = DiscreteLogConjunctionEcc.curve.point_add(t2, DiscreteLogConjunctionEcc.curve.scalar_mult(c, Q))
         assert (lhs1 == rhs1) 
         assert (lhs2 == rhs2)
         
@@ -371,7 +430,7 @@ class DiscreteLogDisjunction(ZeroKnowledgeProtocolEcc):
         
         r1 = DiscreteLogDisjunction.curve.get_random()
         c2 = DiscreteLogDisjunction.curve.get_random()
-        s2 = DiscreteLogConjunction.curve.get_random()
+        s2 = DiscreteLogDisjunction.curve.get_random()
         
         t1 = DiscreteLogDisjunction.curve.scalar_mult(r1, g)
         t2 = DiscreteLogDisjunction.curve.point_add(DiscreteLogDisjunction.curve.scalar_mult(s2, h), DiscreteLogDisjunction.curve.scalar_mult( (0-c2) % DiscreteLogDisjunction.curve.order , Q))
@@ -467,3 +526,69 @@ class PederesenCommitmentEqual(ZeroKnowledgeProtocolEcc):
         rhs1 = PederesenCommitmentEqual.curve.point_add(t1 , PederesenCommitmentEqual.curve.scalar_mult(c, P))
         rhs2 = PederesenCommitmentEqual.curve.point_add(t2 , PederesenCommitmentEqual.curve.scalar_mult(c, Q))
         assert (lhs1 == rhs1) and (lhs2 == rhs2)
+        
+class PederesenCommitmentsEqual(ZeroKnowledgeProtocolEcc):
+    
+    curve = get_curve('secp256r1')
+    def __init__(self, x = None, y = None, z = None) -> None:
+        if x and y and z:
+            self._x = x
+            self._y = y
+            self._z = z
+    
+    def response(self, g1, h1, g2, h2, P, Q):
+        r1 = PederesenCommitmentsEqual.curve.get_random()
+        r2 = PederesenCommitmentsEqual.curve.get_random()
+        r3 = PederesenCommitmentsEqual.curve.get_random()
+        
+        t1 = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(r1, g1), PederesenCommitmentsEqual.curve.scalar_mult(r2, h1))
+        t2 = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(r1, g2), PederesenCommitmentsEqual.curve.scalar_mult(r3, h2))
+        
+        c = PederesenCommitmentsEqual.curve.hash_points( [ g1, h1, g2, h2, P, Q, t1, t2 ] )
+        
+        s1 = ((r1 + c * self._x) % PederesenCommitmentsEqual.curve.order )
+        s2 = ((r2 + c * self._y) % PederesenCommitmentsEqual.curve.order )
+        s3 = ((r3 + c * self._z) % PederesenCommitmentsEqual.curve.order )
+        return (t1, s1), (t2, s2), s3
+    
+    def verify(self, g1, h1, g2, h2, P, Q, t1s1, t2s2, s3):
+        (t1, s1) = t1s1
+        (t2, s2) = t2s2
+        lhs1 = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(s1, g1), PederesenCommitmentsEqual.curve.scalar_mult(s2, h1))
+        lhs2 = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(s1, g2), PederesenCommitmentsEqual.curve.scalar_mult(s3, h2))
+        c = PederesenCommitmentsEqual.curve.hash_points([g1, h1, g2, h2, P, Q, t1, t2])
+        rhs1 = PederesenCommitmentsEqual.curve.point_add(t1 , PederesenCommitmentsEqual.curve.scalar_mult(c, P))
+        rhs2 = PederesenCommitmentsEqual.curve.point_add(t2 , PederesenCommitmentsEqual.curve.scalar_mult(c, Q))
+        assert (lhs1 == rhs1) and (lhs2 == rhs2)
+        
+class DiscreteLogInequality(ZeroKnowledgeProtocolEcc): # not working
+    
+    curve = get_curve('secp256r1')
+    
+    def __init__(self, x = None, y = None):
+        self._x = x
+        self._y = y
+        
+    def response(self, g, h, P, Q):
+        r = DiscreteLogInequality.curve.get_random()
+        
+        alpha = (self._x * r) % DiscreteLogInequality.curve.order
+        beta = (0 - r) % DiscreteLogInequality.curve.order
+        
+        ar = DiscreteLogInequality.curve.scalar_mult( alpha, h )
+        qr = DiscreteLogInequality.curve.scalar_mult( beta, Q )
+        
+        C = DiscreteLogInequality.curve.point_add(ar, qr)
+        print(f"C: {C}")
+
+        iden = DiscreteLogInequality.curve.point_add(C, C)
+        print(f"iden: {iden}")
+        client = PederesenCommitmentEqual(alpha, beta)
+        (t1, s1), (t2, s2) = client.response(g, P, h, Q, iden, C)
+        return C, (t1, s1), (t2, s2)
+    
+    def verify(self, g, h, P, Q, C, t1s1, t2s2 ):
+       
+       iden = DiscreteLogInequality.curve.point_add(C, C)
+       proover = PederesenCommitmentEqual()
+       proover.verify(g, P, h, Q, iden, C, t1s1, t2s2)

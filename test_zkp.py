@@ -21,7 +21,7 @@ def test_discrete_log_noninteractive():
     r = proover.response()
     verifier = DiscreteLogNonInteractive(2, y, 13)
     verifier.verify(r, c, V)
-
+    
 def test_discrete_log_equality_noninteractive():
 
     y = 2**5
@@ -51,15 +51,15 @@ def test_discrete_log_equality_ecc():
     proover = DiscreteLogEqualityNonInteractiveEcc()
     proover.verify(g, h, P, Q, t1, t2, s)
     
-def test_discrete_log_conjunction():
+def test_discrete_log_conjunction_ecc():
     secret = 5
     secret_2 = 7
-    client = DiscreteLogConjunction(secret, secret_2)
-    g, h = DiscreteLogConjunction.curve.get_generators(2)
-    P = DiscreteLogConjunction.curve.scalar_mult(secret, g)
-    Q = DiscreteLogConjunction.curve.scalar_mult(secret_2, h)
+    client = DiscreteLogConjunctionEcc(secret, secret_2)
+    g, h = DiscreteLogConjunctionEcc.curve.get_generators(2)
+    P = DiscreteLogConjunctionEcc.curve.scalar_mult(secret, g)
+    Q = DiscreteLogConjunctionEcc.curve.scalar_mult(secret_2, h)
     (t1, s1), (t2, s2) = client.response(g, h, P, Q)
-    proover = DiscreteLogConjunction()
+    proover = DiscreteLogConjunctionEcc()
     proover.verify(g, h, P, Q, (t1, s1), (t2, s2))
     
 def test_discrete_log_disjunction():
@@ -96,4 +96,37 @@ def test_pederesen_commitment_eq_message_randomness():
     (t1, s1), (t2, s2) = client.response(g1, h1, g2, h2, P, Q)
     proover = PederesenCommitmentEqual()
     proover.verify(g1, h1, g2, h2, P, Q, (t1, s1), (t2, s2))
+    
+def test_pederesen_commitments():
+    secret = 5
+    secret2 = 7
+    secret3 = 11
+    
+    client = PederesenCommitmentsEqual(secret, secret2, secret3)
+    g1, h1, g2, h2 = PederesenCommitmentsEqual.curve.get_generators(4)
+    P = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(secret, g1), PederesenCommitmentsEqual.curve.scalar_mult(secret2, h1))
+    Q = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(secret, g2), PederesenCommitmentsEqual.curve.scalar_mult(secret3, h2))
+    
+    (t1, s1), (t2, s2), s3 = client.response(g1, h1, g2, h2, P, Q)
+    proover = PederesenCommitmentsEqual()
+    proover.verify(g1, h1, g2, h2, P, Q, (t1, s1), (t2, s2), s3)
+    
+def test_discrete_log_conjunction():
+    # Example parameters (for demonstration purposes, in practice, use large prime numbers and generators)
+    g = 2
+    h = 3
+    p = 17  # Large prime for a real implementation
+    a = 4
+    b = 5
+    P = pow(g, a, p)
+    Q = pow(h, b, p)
+
+    proover = DiscreteLogConjunction(g, h, P, Q, p, a, b)
+    commitment1, commitment2 = proover.commitment()
+    challenge = proover.challenge()
+    response1, response2 = proover.response()
+    verifier = DiscreteLogConjunction(g, h, P, Q, p)
+    verifier.verify(commitment1, commitment2, response1, response2, challenge)
+
+
     
