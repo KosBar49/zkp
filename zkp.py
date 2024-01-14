@@ -418,7 +418,7 @@ class DiscreteLogConjunctionEcc(ZeroKnowledgeProtocolEcc):
         assert (lhs1 == rhs1) 
         assert (lhs2 == rhs2)
         
-class DiscreteLogDisjunction(ZeroKnowledgeProtocolEcc):
+class DiscreteLogDisjunctionEcc(ZeroKnowledgeProtocolEcc):
     
     curve = get_curve('secp256r1')
     
@@ -428,15 +428,15 @@ class DiscreteLogDisjunction(ZeroKnowledgeProtocolEcc):
             
     def response(self, g, h, P, Q):
         
-        r1 = DiscreteLogDisjunction.curve.get_random()
-        c2 = DiscreteLogDisjunction.curve.get_random()
-        s2 = DiscreteLogDisjunction.curve.get_random()
+        r1 = DiscreteLogDisjunctionEcc.curve.get_random()
+        c2 = DiscreteLogDisjunctionEcc.curve.get_random()
+        s2 = DiscreteLogDisjunctionEcc.curve.get_random()
         
-        t1 = DiscreteLogDisjunction.curve.scalar_mult(r1, g)
-        t2 = DiscreteLogDisjunction.curve.point_add(DiscreteLogDisjunction.curve.scalar_mult(s2, h), DiscreteLogDisjunction.curve.scalar_mult( (0-c2) % DiscreteLogDisjunction.curve.order , Q))
-        c = DiscreteLogDisjunction.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
-        c1 = (c - c2) % DiscreteLogDisjunction.curve.order
-        s1 = ((r1 + c1 * self._x) % DiscreteLogDisjunction.curve.order  ) % DiscreteLogDisjunction.curve.order 
+        t1 = DiscreteLogDisjunctionEcc.curve.scalar_mult(r1, g)
+        t2 = DiscreteLogDisjunctionEcc.curve.point_add(DiscreteLogDisjunctionEcc.curve.scalar_mult(s2, h), DiscreteLogDisjunctionEcc.curve.scalar_mult( (0-c2) % DiscreteLogDisjunctionEcc.curve.order , Q))
+        c = DiscreteLogDisjunctionEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        c1 = (c - c2) % DiscreteLogDisjunctionEcc.curve.order
+        s1 = ((r1 + c1 * self._x) % DiscreteLogDisjunctionEcc.curve.order  ) % DiscreteLogDisjunctionEcc.curve.order 
         return (t1, c1, s1), (t2, c2, s2)
     
     def verify(self, g, h, P, Q, t1cs1, t2cs2):
@@ -453,12 +453,12 @@ class DiscreteLogDisjunction(ZeroKnowledgeProtocolEcc):
         """
         (t1, c1, s1) = t1cs1
         (t2, c2, s2) = t2cs2
-        c = DiscreteLogDisjunction.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
-        assert (c == (c1 + c2) % DiscreteLogDisjunction.curve.order )
-        lhs1 = DiscreteLogDisjunction.curve.scalar_mult(s1, g)
-        rhs1 = DiscreteLogDisjunction.curve.point_add(t1, DiscreteLogDisjunction.curve.scalar_mult(c1, P))
-        lhs2 = DiscreteLogDisjunction.curve.scalar_mult(s2, h)
-        rhs2 = DiscreteLogDisjunction.curve.point_add(t2, DiscreteLogDisjunction.curve.scalar_mult(c2, Q))
+        c = DiscreteLogDisjunctionEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        assert (c == (c1 + c2) % DiscreteLogDisjunctionEcc.curve.order )
+        lhs1 = DiscreteLogDisjunctionEcc.curve.scalar_mult(s1, g)
+        rhs1 = DiscreteLogDisjunctionEcc.curve.point_add(t1, DiscreteLogDisjunctionEcc.curve.scalar_mult(c1, P))
+        lhs2 = DiscreteLogDisjunctionEcc.curve.scalar_mult(s2, h)
+        rhs2 = DiscreteLogDisjunctionEcc.curve.point_add(t2, DiscreteLogDisjunctionEcc.curve.scalar_mult(c2, Q))
         assert (lhs1 == rhs1)
         assert (lhs2 == rhs2)
         

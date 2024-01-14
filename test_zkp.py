@@ -13,7 +13,7 @@ def test_discrete_log_interactive():
     
     verifier.verify(res, c)
 
-def test_discrete_log_noninteractive():
+def test_discrete_log():
 
     y = 2**5
     proover = DiscreteLogNonInteractive(2, y, 13, 5)
@@ -22,7 +22,13 @@ def test_discrete_log_noninteractive():
     verifier = DiscreteLogNonInteractive(2, y, 13)
     verifier.verify(r, c, V)
     
-def test_discrete_log_equality_noninteractive():
+def test_discrete_log_ecc():
+    client = DiscreteLogNonInteractiveEcc(5)
+    (t, s) = client.response()
+    proover = DiscreteLogNonInteractiveEcc()
+    proover.verify(t, s)
+    
+def test_discrete_log_equality():
 
     y = 2**5
     h = 3**5
@@ -34,13 +40,6 @@ def test_discrete_log_equality_noninteractive():
     verifier = DiscreteLogEqualityNonInteractive(2, y, 3, h, 13)
     verifier.verify(C, r)
 
-def test_discrete_log_ecc():
-    client = DiscreteLogNonInteractiveEcc(5)
-    (t, s) = client.response()
-    proover = DiscreteLogNonInteractiveEcc()
-    proover.verify(t, s)
-
-
 def test_discrete_log_equality_ecc():
     secret = 5
     client = DiscreteLogEqualityNonInteractiveEcc(secret)
@@ -50,6 +49,23 @@ def test_discrete_log_equality_ecc():
     (t1, t2, s) = client.response(g, h, P, Q)
     proover = DiscreteLogEqualityNonInteractiveEcc()
     proover.verify(g, h, P, Q, t1, t2, s)
+
+def test_discrete_log_conjunction():
+    # Example parameters (for demonstration purposes, in practice, use large prime numbers and generators)
+    g = 2
+    h = 3
+    p = 17  # Large prime for a real implementation
+    a = 4
+    b = 5
+    P = pow(g, a, p)
+    Q = pow(h, b, p)
+
+    proover = DiscreteLogConjunction(g, h, P, Q, p, a, b)
+    commitment1, commitment2 = proover.commitment()
+    challenge = proover.challenge()
+    response1, response2 = proover.response()
+    verifier = DiscreteLogConjunction(g, h, P, Q, p)
+    verifier.verify(commitment1, commitment2, response1, response2, challenge)
     
 def test_discrete_log_conjunction_ecc():
     secret = 5
@@ -65,15 +81,15 @@ def test_discrete_log_conjunction_ecc():
 def test_discrete_log_disjunction():
     secret = 5
     b = 7
-    client = DiscreteLogDisjunction(secret)
+    client = DiscreteLogDisjunctionEcc(secret)
     
-    g, h = DiscreteLogDisjunction.curve.get_generators(2)
+    g, h = DiscreteLogDisjunctionEcc.curve.get_generators(2)
 
-    P = DiscreteLogDisjunction.curve.scalar_mult(secret, g)
-    Q = DiscreteLogDisjunction.curve.scalar_mult(b, h)
+    P = DiscreteLogDisjunctionEcc.curve.scalar_mult(secret, g)
+    Q = DiscreteLogDisjunctionEcc.curve.scalar_mult(b, h)
 
     t1c1s1, t2c2s2 = client.response(g, h, P, Q)
-    proover = DiscreteLogDisjunction()
+    proover = DiscreteLogDisjunctionEcc()
     proover.verify(g, h, P, Q, t1c1s1, t2c2s2)
     
 def test_pederesen_commitment():
@@ -110,23 +126,7 @@ def test_pederesen_commitments():
     (t1, s1), (t2, s2), s3 = client.response(g1, h1, g2, h2, P, Q)
     proover = PederesenCommitmentsEqual()
     proover.verify(g1, h1, g2, h2, P, Q, (t1, s1), (t2, s2), s3)
-    
-def test_discrete_log_conjunction():
-    # Example parameters (for demonstration purposes, in practice, use large prime numbers and generators)
-    g = 2
-    h = 3
-    p = 17  # Large prime for a real implementation
-    a = 4
-    b = 5
-    P = pow(g, a, p)
-    Q = pow(h, b, p)
 
-    proover = DiscreteLogConjunction(g, h, P, Q, p, a, b)
-    commitment1, commitment2 = proover.commitment()
-    challenge = proover.challenge()
-    response1, response2 = proover.response()
-    verifier = DiscreteLogConjunction(g, h, P, Q, p)
-    verifier.verify(commitment1, commitment2, response1, response2, challenge)
 
 
     
