@@ -27,7 +27,7 @@ class ZeroKnowledgeProtocolNonInteractive(ABC):
     def verify(self, statement, proof):
         pass
 
-class DiscreteLogConjunction(ZeroKnowledgeProtocol):
+class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
 
     def __init__(self, g, h, P, Q, p, a=None, b=None):
         """
@@ -84,6 +84,63 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocol):
         rhs2 = (commitment2 * pow(self._Q, challange, self._p)) % self._p #if self._p else commitment2 * pow(self._Q, self._challenge)
         assert lhs1 == rhs1 and lhs2 == rhs2
 
+class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive):
+
+    def __init__(self, g, h, P, Q, p, x=None, y = None):
+        """
+        Initialize the protocol parameters.
+        :param g, h: Generators of the group.
+        :param P, Q: Public values such that P = g^a and Q = h^b.
+        :param p: Prime modulus.
+        :param x: Secret value.
+        """
+        self._g = g
+        self._h = h
+        self._P = P
+        self._Q = Q
+        self._p = p
+        self._x = x
+        self._y = y
+
+    def response(self):
+        r1 = random.randint(0, self._p - 1)
+        r2 = random.randint(0, self._p - 1)
+
+        t1 = pow(self._g, r1, self._p)
+        t2 = pow(self._h, r2, self._p)
+
+        cha1 = str(self._g) + str(self._h) + str(self._P) + str(self._Q) + str(t1) + str(t2)
+        hash_ = hashlib.md5()
+        hash_.update(cha1.encode())
+        c = int(hash_.hexdigest(), 16) % self._p
+
+        s1 = (r1 + c * self._x) % (self._p - 1)
+        s2 = (r2 + c * self._y) % (self._p - 1)
+
+        return (t1, s1), (t2, s2)
+
+    def verify(self, g, h, P, Q, t1cs1, t2cs2):
+        
+        (t1, s1) = t1cs1
+        (t2, s2) = t2cs2
+
+        cha1 = str(g) + str(h) + str(P) + str(Q) + str(t1) + str(t2)
+        hash_ = hashlib.md5()
+        hash_.update(cha1.encode())
+        c = int(hash_.hexdigest(), 16) % self._p
+
+        lhs1 = pow(g, s1, self._p)
+        rhs1 = (t1 * pow(P, c, self._p)) % self._p
+
+        lhs2 = pow(h, s2, self._p)
+        rhs2 = (t2 * pow(Q, c, self._p)) % self._p
+        print(rhs1)
+        print(lhs1)
+        print(rhs2)
+        print(lhs2)
+        assert lhs1 == rhs1 
+        assert lhs2 == rhs2
+        
 class DiscreteLogConjunctionEcc(ZeroKnowledgeProtocolNonInteractive):
     
     curve = get_curve('secp256r1')
