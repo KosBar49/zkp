@@ -1,4 +1,6 @@
 from .zkp import *
+from .zkp_discrete_log import *
+from .zkp_conjunction import *
 
 def test_discrete_log_interactive():
     
