@@ -1,6 +1,7 @@
 from .zkp import *
-from .zkp_discrete_log import *
-from .zkp_conjunction import *
+from .zkp_log_discrete import *
+from .zkp_log_conjunction import *
+from .zkp_log_equality import *
 
 def test_discrete_log_interactive():
     
