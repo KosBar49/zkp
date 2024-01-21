@@ -1,8 +1,10 @@
-from .zkp import *
 from .zkp_log_discrete import *
 from .zkp_log_conjunction import *
 from .zkp_log_equality import *
 from .zkp_log_disjunction import *
+from .zkp_pederesen_commitment import *
+from .zkp_pederesen_commitments import *
+from .zkp_pederesen_commitments_messages import *
 
 def test_discrete_log_interactive():
     
@@ -144,12 +146,12 @@ def test_pederesen_commitment_ecc():
 def test_pederesen_commitment_eq_message_randomness_ecc():
     secret = 5
     secret_2 = 7
-    client_a = PederesenCommitmentEqual(secret, secret_2)
-    g1, h1, g2, h2 = PederesenCommitmentEqual.curve.get_generators(4)
-    P = PederesenCommitmentEqual.curve.point_add(PederesenCommitmentEqual.curve.scalar_mult(secret, g1), PederesenCommitmentEqual.curve.scalar_mult(secret_2, h1))
-    Q = PederesenCommitmentEqual.curve.point_add(PederesenCommitmentEqual.curve.scalar_mult(secret, g2), PederesenCommitmentEqual.curve.scalar_mult(secret_2, h2))
+    client_a = PederesenCommitmentsEqual(secret, secret_2)
+    g1, h1, g2, h2 = PederesenCommitmentsEqual.curve.get_generators(4)
+    P = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(secret, g1), PederesenCommitmentsEqual.curve.scalar_mult(secret_2, h1))
+    Q = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(secret, g2), PederesenCommitmentsEqual.curve.scalar_mult(secret_2, h2))
     (t1, s1), (t2, s2) = client_a.response(g1, h1, g2, h2, P, Q)
-    client_b = PederesenCommitmentEqual()
+    client_b = PederesenCommitmentsEqual()
     client_b.verify(g1, h1, g2, h2, P, Q, (t1, s1), (t2, s2))
     
 def test_pederesen_commitments_ecc():
@@ -157,11 +159,11 @@ def test_pederesen_commitments_ecc():
     secret2 = 7
     secret3 = 11
     
-    client_a = PederesenCommitmentsEqual(secret, secret2, secret3)
-    g1, h1, g2, h2 = PederesenCommitmentsEqual.curve.get_generators(4)
-    P = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(secret, g1), PederesenCommitmentsEqual.curve.scalar_mult(secret2, h1))
-    Q = PederesenCommitmentsEqual.curve.point_add(PederesenCommitmentsEqual.curve.scalar_mult(secret, g2), PederesenCommitmentsEqual.curve.scalar_mult(secret3, h2))
+    client_a = PederesenCommitmentsEqualMessages(secret, secret2, secret3)
+    g1, h1, g2, h2 = PederesenCommitmentsEqualMessages.curve.get_generators(4)
+    P = PederesenCommitmentsEqualMessages.curve.point_add(PederesenCommitmentsEqualMessages.curve.scalar_mult(secret, g1), PederesenCommitmentsEqualMessages.curve.scalar_mult(secret2, h1))
+    Q = PederesenCommitmentsEqualMessages.curve.point_add(PederesenCommitmentsEqualMessages.curve.scalar_mult(secret, g2), PederesenCommitmentsEqualMessages.curve.scalar_mult(secret3, h2))
     
     (t1, s1), (t2, s2), s3 = client_a.response(g1, h1, g2, h2, P, Q)
-    client_b = PederesenCommitmentsEqual()
+    client_b = PederesenCommitmentsEqualMessages()
     client_b.verify(g1, h1, g2, h2, P, Q, (t1, s1), (t2, s2), s3)
