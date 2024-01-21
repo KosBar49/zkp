@@ -22,16 +22,15 @@ def test_discrete_log_interactive():
 def test_discrete_log():
     g = 2 # x = 5
     y = 2**5
-    client_a = DiscreteLogNonInteractive(2, y, 13, 5)
-    c, V = client_a.challenge()
-    r = client_a.response()
-    client_b = DiscreteLogNonInteractive(2, y, 13)
-    client_b.verify(r, c, V)
+    client_a = DiscreteLog(2, y, 13, 5)
+    r, V = client_a.response()
+    client_b = DiscreteLog(2, y, 13)
+    client_b.verify(r, V)
     
 def test_discrete_log_ecc():
-    client_a = DiscreteLogNonInteractiveEcc(5)
+    client_a = DiscreteLogEcc(5)
     (t, s) = client_a.response()
-    client_b = DiscreteLogNonInteractiveEcc()
+    client_b = DiscreteLogEcc()
     client_b.verify(t, s)
     
 def test_discrete_log_equality():
@@ -93,6 +92,17 @@ def test_discrete_log_conjunction():
     # Here, we use the same instance for simplicity
     prover.verify(g, h, P, Q, (t1, s1), (t2, s2))
 
+    
+def test_discrete_log_conjunction_ecc():
+    secret = 5
+    secret_2 = 7
+    client_a = DiscreteLogConjunctionEcc(secret, secret_2)
+    g, h = DiscreteLogConjunctionEcc.curve.get_generators(2)
+    P = DiscreteLogConjunctionEcc.curve.scalar_mult(secret, g)
+    Q = DiscreteLogConjunctionEcc.curve.scalar_mult(secret_2, h)
+    (t1, s1), (t2, s2) = client_a.response(g, h, P, Q)
+    client_b = DiscreteLogConjunctionEcc()
+    client_b.verify(g, h, P, Q, (t1, s1), (t2, s2))
 
 def test_discrete_log_disjunction():
     g = 2
@@ -106,18 +116,6 @@ def test_discrete_log_disjunction():
     t1c1s1, t2c2s2 = client_a.response()
     client_b = DiscreteLogDisjunction(g, h, P, Q, p)
     client_b.verify(g, h, P, Q, t1c1s1, t2c2s2)
-    
-def test_discrete_log_conjunction_ecc():
-    secret = 5
-    secret_2 = 7
-    client_a = DiscreteLogConjunctionEcc(secret, secret_2)
-    g, h = DiscreteLogConjunctionEcc.curve.get_generators(2)
-    P = DiscreteLogConjunctionEcc.curve.scalar_mult(secret, g)
-    Q = DiscreteLogConjunctionEcc.curve.scalar_mult(secret_2, h)
-    (t1, s1), (t2, s2) = client_a.response(g, h, P, Q)
-    client_b = DiscreteLogConjunctionEcc()
-    client_b.verify(g, h, P, Q, (t1, s1), (t2, s2))
-
     
 def test_discrete_log_disjunction_ecc():
     secret = 5

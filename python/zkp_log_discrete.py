@@ -47,7 +47,7 @@ class DiscreteLogInteractive(ZeroKnowledgeProtocol):
         """
         assert pow( self._g, response, self._p ) == ( pow(self._y, self._challenge) * commitment ) % self._p
 
-class DiscreteLogNonInteractive(ZeroKnowledgeProtocol):
+class DiscreteLog(ZeroKnowledgeProtocolNonInteractive):
     """
     Implementation based on https://asecuritysite.com/zero/nizkp2
     """
@@ -63,31 +63,22 @@ class DiscreteLogNonInteractive(ZeroKnowledgeProtocol):
         self._y = y 
         self._x = x
 
-    def challenge(self):
-        """
-        Generates a challenge for the user.
-        Parameters:
-            None
-        Returns:
-            A tuple containing the challenge value and the computed V value.
-        """
-        chal = str(self._g) + str(self._x) + str(self._y)
-        h = hashlib.md5()
-        h.update(chal.encode())
-        self._v = random.randint(0, self._p - 1)
-        V = pow(self._g, self._v, self._p)
-        self._c = int(h.hexdigest(), 16)
-        return self._c, V
-
     def response(self):
         """
         Calculate the response value based on the current state of the object.
         Returns:
             int: The calculated response value.
         """
-        return (self._v - self._c * self._x) % (self._p - 1)
+        self._v = random.randint(0, self._p - 1)
+        V = pow(self._g, self._v, self._p)
+        chal = str(self._g)  + str(self._y) + str(V)
+        h = hashlib.md5()
+        h.update(chal.encode())
+        
+        self._c = int(h.hexdigest(), 16)
+        return (self._v - self._c * self._x) % (self._p - 1), V
 
-    def verify(self, r, c, V):
+    def verify(self, r, V):
         """
         Verify the validity of a given signature.
         Parameters:
@@ -99,10 +90,14 @@ class DiscreteLogNonInteractive(ZeroKnowledgeProtocol):
         Raises:
             AssertionError: If the signature is invalid.
         """
+        chal = str(self._g)  + str(self._y) + str(V)
+        h = hashlib.md5()
+        h.update(chal.encode())
+        c = int(h.hexdigest(), 16)
         check = (pow(self._g, r, self._p) * pow(self._y, c, self._p)) % self._p
         assert V == check
 
-class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolNonInteractive):
+class DiscreteLogEcc(ZeroKnowledgeProtocolNonInteractive):
 
     curve = get_curve('secp256r1')
     
@@ -116,7 +111,7 @@ class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolNonInteractive):
         """
         if x:
             self._x = x
-            DiscreteLogNonInteractiveEcc.y = DiscreteLogNonInteractiveEcc.curve.scalar_mult(x, DiscreteLogNonInteractiveEcc.curve.g)
+            DiscreteLogEcc.y = DiscreteLogEcc.curve.scalar_mult(x, DiscreteLogEcc.curve.g)
 
     def response(self):
         """
@@ -127,10 +122,10 @@ class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolNonInteractive):
                 - t (Point): The calculated point t.
                 - s (int): The calculated value s.
         """
-        r  = DiscreteLogNonInteractiveEcc.curve.get_random()
-        t =  DiscreteLogNonInteractiveEcc.curve.scalar_mult(r, DiscreteLogNonInteractiveEcc.curve.g)
-        c = DiscreteLogNonInteractiveEcc.curve.hash_points( [ DiscreteLogNonInteractiveEcc.curve.g, DiscreteLogNonInteractiveEcc.y, t ] )
-        s = ((r + c * self._x) % DiscreteLogNonInteractiveEcc.curve.order )
+        r  = DiscreteLogEcc.curve.get_random()
+        t =  DiscreteLogEcc.curve.scalar_mult(r, DiscreteLogEcc.curve.g)
+        c = DiscreteLogEcc.curve.hash_points( [ DiscreteLogEcc.curve.g, DiscreteLogEcc.y, t ] )
+        s = ((r + c * self._x) % DiscreteLogEcc.curve.order )
         return t, s
 
     def verify(self, t, s):
@@ -147,8 +142,8 @@ class DiscreteLogNonInteractiveEcc(ZeroKnowledgeProtocolNonInteractive):
         Raises:
             AssertionError: If the verification fails (i.e., the values are not equal).
         """
-        c = DiscreteLogNonInteractiveEcc.curve.hash_points( [ DiscreteLogNonInteractiveEcc.curve.g, DiscreteLogNonInteractiveEcc.y, t ] )
-        lhs = DiscreteLogNonInteractiveEcc.curve.scalar_mult(s, DiscreteLogNonInteractiveEcc.curve.g)
-        yc = DiscreteLogNonInteractiveEcc.curve.scalar_mult(c, DiscreteLogNonInteractiveEcc.y)
-        rhs = DiscreteLogNonInteractiveEcc.curve.point_add(t, yc)
+        c = DiscreteLogEcc.curve.hash_points( [ DiscreteLogEcc.curve.g, DiscreteLogEcc.y, t ] )
+        lhs = DiscreteLogEcc.curve.scalar_mult(s, DiscreteLogEcc.curve.g)
+        yc = DiscreteLogEcc.curve.scalar_mult(c, DiscreteLogEcc.y)
+        rhs = DiscreteLogEcc.curve.point_add(t, yc)
         assert lhs == rhs
