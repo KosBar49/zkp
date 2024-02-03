@@ -3,6 +3,7 @@ import hashlib
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive   
 
+
 class DiscreteLogEqualityNonInteractive(ZeroKnowledgeProtocol):
     """
     Implementation based on https://asecuritysite.com/zero/dleq3

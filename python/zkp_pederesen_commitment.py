@@ -2,7 +2,7 @@ from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocolNonInteractive
 
 
-class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive):
+class PedersenCommitmentEcc(ZeroKnowledgeProtocolNonInteractive):
     
     curve = get_curve('secp256r1')
     
@@ -12,13 +12,13 @@ class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive):
             self._y = y
             
     def response(self, g, h, P):
-        r1 = PedersenCommitment.curve.get_random()
-        r2 = PedersenCommitment.curve.get_random()
+        r1 = PedersenCommitmentEcc.curve.get_random()
+        r2 = PedersenCommitmentEcc.curve.get_random()
         
-        t = PedersenCommitment.curve.point_add(PedersenCommitment.curve.scalar_mult(r1, g), PedersenCommitment.curve.scalar_mult(r2, h))
-        c = PedersenCommitment.curve.hash_points( [ g, h, P, t ] )
-        s1 = ((r1 + c * self._x) % PedersenCommitment.curve.order )
-        s2 = ((r2 + c * self._y) % PedersenCommitment.curve.order )
+        t = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(r1, g), PedersenCommitmentEcc.curve.scalar_mult(r2, h))
+        c = PedersenCommitmentEcc.curve.hash_points( [ g, h, P, t ] )
+        s1 = ((r1 + c * self._x) % PedersenCommitmentEcc.curve.order )
+        s2 = ((r2 + c * self._y) % PedersenCommitmentEcc.curve.order )
         return t, s1, s2
     
     def verify(self, g, h, P, t, s1, s2):
@@ -33,7 +33,7 @@ class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive):
         Raises:
             AssertionError: If the signature is invalid.
         """
-        lhs = PedersenCommitment.curve.point_add(PedersenCommitment.curve.scalar_mult(s1, g), PedersenCommitment.curve.scalar_mult(s2, h))
-        c = PedersenCommitment.curve.hash_points([g, h, P, t])
-        rhs = PedersenCommitment.curve.point_add(t , PedersenCommitment.curve.scalar_mult(c, P))
+        lhs = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(s1, g), PedersenCommitmentEcc.curve.scalar_mult(s2, h))
+        c = PedersenCommitmentEcc.curve.hash_points([g, h, P, t])
+        rhs = PedersenCommitmentEcc.curve.point_add(t , PedersenCommitmentEcc.curve.scalar_mult(c, P))
         assert (lhs == rhs)

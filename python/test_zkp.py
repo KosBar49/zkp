@@ -134,11 +134,11 @@ def test_discrete_log_disjunction_ecc():
 def test_pederesen_commitment_ecc():
     secret = 5
     secret_2 = 7
-    client_a = PedersenCommitment(secret, secret_2)
-    g, h = PedersenCommitment.curve.get_generators(2)
-    P = PedersenCommitment.curve.point_add(PedersenCommitment.curve.scalar_mult(secret, g), PedersenCommitment.curve.scalar_mult(secret_2, h))
+    client_a = PedersenCommitmentEcc(secret, secret_2)
+    g, h = PedersenCommitmentEcc.curve.get_generators(2)
+    P = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(secret, g), PedersenCommitmentEcc.curve.scalar_mult(secret_2, h))
     (t, s1, s2) = client_a.response(g, h, P)
-    client_b = PedersenCommitment()
+    client_b = PedersenCommitmentEcc()
     client_b.verify(g, h, P, t, s1, s2)
     
 def test_pederesen_commitment_eq_message_randomness_ecc():

@@ -1,8 +1,29 @@
 import random
 import hashlib
 from .elliptic_curve import get_curve
-from .interface_zkp import ZeroKnowledgeProtocolNonInteractive
+from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 
+class DicreteLogDisjuntionInteractive(ZeroKnowledgeProtocol):
+    def __init__(self, g, h, P, Q, p, x = None):
+        
+        self._g = g
+        self._h = h
+        self._P = P
+        self._Q = Q
+        self._p = p
+        self._x = x
+        
+    def challenge(self):
+        #TODO
+        pass
+    
+    def response(self, statement):
+        #TODO
+        pass
+    
+    def verify(self, statement, proof):
+        #TODO
+        pass
 
 class DiscreteLogDisjunction(ZeroKnowledgeProtocolNonInteractive):
 
