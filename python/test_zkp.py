@@ -32,6 +32,20 @@ def test_discrete_log_ecc():
     (t, s) = client_a.response()
     client_b = DiscreteLogEcc()
     client_b.verify(t, s)
+
+def test_discrete_log_equality_interactive():
+
+    y = 2**5
+    h = 3**5
+
+    client_a = DiscreteLogEqualityInteractive(2, y, 3, h, 13, 5)
+    vG, vH = client_a.commitments()
+    client_b = DiscreteLogEqualityInteractive(2, y, 3, h, 13)
+    C = client_b.challenge()
+    
+    r = client_a.response(C)
+    client_b = DiscreteLogEqualityInteractive(2, y, 3, h, 13)
+    client_b.verify(C, r, vG, vH)
     
 def test_discrete_log_equality():
 
