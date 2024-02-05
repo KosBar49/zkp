@@ -143,6 +143,32 @@ def test_discrete_log_disjunction_ecc():
     client_b = DiscreteLogDisjunctionEcc()
     client_b.verify(g, h, P, Q, t1c1s1, t2c2s2)
     
+def test_pedersen_commitment_non_interactive():
+    # Prime order p and generators g, h for the cyclic group
+    p = 1019  # Example prime number; in practice, use a large prime
+    g = 2     # Example generator; in practice, ensure g is a generator of the group
+    h = 3     # Another generator, unrelated to g
+
+    # Secrets x and y
+    secret_x = 5
+    secret_y = 7
+
+    # Public value P (for simplicity, it's not directly derived from x, y in this example)
+    P = (pow(g, secret_x, p) * pow(h, secret_y, p)) % p
+
+    # Initialize PedersenCommitmentNonInteractive with secrets
+    client_a = PedersenCommitmentNonInteractive(p, g, h, secret_x, secret_y)
+    
+    # Client A generates a response (commitment and proofs) for the public value P
+    (t, s1, s2) = client_a.response(P)
+    
+    # Initialize another PedersenCommitmentNonInteractive instance for verification
+    # No need for secrets since we're only verifying
+    client_b = PedersenCommitmentNonInteractive(p, g, h)
+    
+    # Client B verifies the commitment and proofs
+    client_b.verify(g, h, P, t, s1, s2)
+    
 def test_pederesen_commitment_ecc():
     secret = 5
     secret_2 = 7

@@ -77,10 +77,6 @@ class DiscreteLogDisjunction(ZeroKnowledgeProtocolNonInteractive):
 
         lhs2 = pow(h, s2, self._p)
         rhs2 = (t2 * pow(Q, c2, self._p)) % self._p
-        print(rhs1)
-        print(lhs1)
-        print(rhs2)
-        print(lhs2)
 
         assert lhs1 == rhs1 and lhs2 == rhs2
         
