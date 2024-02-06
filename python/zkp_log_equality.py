@@ -39,7 +39,7 @@ class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
         """
         Calculates the response based on the challenge.
         """
-        self._r = (self._v + self._x * c) % (self._p - 1)
+        self._r = (self._v - self._x * c) % (self._p - 1)
         return self._r
 
     def verify(self, c: int, r: int, vG: int, vH: int) -> bool:
