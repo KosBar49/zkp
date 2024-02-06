@@ -22,9 +22,6 @@ class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
     def commitments(self) -> Tuple[int, int]:
         """
         Generates commitments for the protocol.
-
-        Returns:
-            A tuple of commitments (vG, vH).
         """
         self._v = self._random.randint(0, self._p - 1)
         self._vG = pow(self._g, self._v, self._p)
@@ -34,9 +31,6 @@ class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
     def challenge(self) -> int:
         """
         Generates a random challenge value.
-
-        Returns:
-            The challenge value c.
         """
         self._c = self._random.randint(1, self._p - 1)
         return self._c
@@ -44,34 +38,21 @@ class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
     def response(self, c: int) -> int:
         """
         Calculates the response based on the challenge.
-
-        Parameters:
-            c (int): The challenge value.
-
-        Returns:
-            The response value r.
         """
-        self._r = (self._v - self._x * c) % (self._p - 1)
+        self._r = (self._v + self._x * c) % (self._p - 1)
         return self._r
 
     def verify(self, c: int, r: int, vG: int, vH: int) -> bool:
         """
         Verifies the ZKP given the challenge, response, and commitments.
-
-        Parameters:
-            c (int): The challenge value.
-            r (int): The response value.
-            vG (int): The first commitment.
-            vH (int): The second commitment.
-
-        Returns:
-            True if the verification succeeds, False otherwise.
         """
-        v1 = pow(self._g, r, self._p)
-        v2 = pow(self._h, r, self._p)
-        t1 = (pow(self._xG, c, self._p) * vG) % self._p
-        t2 = (pow(self._xH, c, self._p) * vH) % self._p
-        return v1 == t1 and v2 == t2
+        # Calculate the verification values using the prover's response
+        v1 = pow(self._g, r, self._p) * pow(self._xG, c, self._p) % self._p
+        v2 = pow(self._h, r, self._p) * pow(self._xH, c, self._p) % self._p
+
+        # Check if the recalculated commitments match the original commitments
+        assert v1 == vG
+        assert v2 == vH
 
 class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive):
     """

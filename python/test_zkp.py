@@ -142,8 +142,23 @@ def test_discrete_log_disjunction_ecc():
     t1c1s1, t2c2s2 = client_a.response(g, h, P, Q)
     client_b = DiscreteLogDisjunctionEcc()
     client_b.verify(g, h, P, Q, t1c1s1, t2c2s2)
+   
+def test_pedersen_commitment_interactive():
+    p = 23
+    g = 5
+    h = 2
+    x = 5
+    y = 7
     
-def test_pedersen_commitment_non_interactive():
+    client_a = PedersenCommitmentInteractive(p, g, h, x, y)
+    
+    t = client_a.commit()
+    client_b = PedersenCommitmentInteractive(p, g, h)
+    c = client_b.challenge()
+    s1, s2 = client_a.response(c)
+    client_b.verify(t, c, s1, s2)   
+    
+def test_pedersen_commitment():
     # Prime order p and generators g, h for the cyclic group
     p = 1019  # Example prime number; in practice, use a large prime
     g = 2     # Example generator; in practice, ensure g is a generator of the group
@@ -168,7 +183,7 @@ def test_pedersen_commitment_non_interactive():
     
     # Client B verifies the commitment and proofs
     client_b.verify(g, h, P, t, s1, s2)
-    
+
 def test_pederesen_commitment_ecc():
     secret = 5
     secret_2 = 7
