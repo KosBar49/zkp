@@ -4,7 +4,6 @@ from .interface_zkp import ZeroKnowledgeProtocolNonInteractive
 import random
 import hashlib
 
-import random
 
 class PedersenCommitmentInteractive:
     """
@@ -34,7 +33,8 @@ class PedersenCommitmentInteractive:
         """
         self.r1 = random.randint(1, self.p - 1)
         self.r2 = random.randint(1, self.p - 1)
-        self.t = (pow(self.g, self.r1, self.p) * pow(self.h, self.r2, self.p)) % self.p
+        self.t = (pow(self.g, self.r1, self.p) *
+                  pow(self.h, self.r2, self.p)) % self.p
         return self.t
 
     def challenge(self) -> None:
@@ -64,13 +64,14 @@ class PedersenCommitmentInteractive:
         :return: True if the verification is successful, False otherwise.
         """
         # Recompute the commitment using s1, s2, and challenge c
-        
-        
+
         lhs = (pow(self.g, s1, self.p) * pow(self.h, s2, self.p)) % self.p
-        rhs = (t * pow(self.g, c, self.p)) % self.p  # This is incorrect in the context of Pedersen commitments
+        # This is incorrect in the context of Pedersen commitments
+        rhs = (t * pow(self.g, c, self.p)) % self.p
         # Correct rhs computation for Pedersen verification
-        #rhs = t  # For Pedersen, the verification does not recompute t this way
+        # rhs = t  # For Pedersen, the verification does not recompute t this way
         return lhs == rhs
+
 
 class PedersenCommitmentNonInteractive:
     """
@@ -109,8 +110,8 @@ class PedersenCommitmentNonInteractive:
         c = int(hash_.hexdigest(), 16) % self.p
 
         # Responses
-        s1 = (r1 + c * self.x) % ( self.p - 1) 
-        s2 = (r2 + c * self.y) % ( self.p - 1)
+        s1 = (r1 + c * self.x) % (self.p - 1)
+        s2 = (r2 + c * self.y) % (self.p - 1)
 
         return t, s1, s2
 
@@ -129,7 +130,7 @@ class PedersenCommitmentNonInteractive:
         hash_ = hashlib.md5()
         hash_.update(cha1.encode())
         c = int(hash_.hexdigest(), 16) % self.p
-        
+
         # Calculate right hand side (RHS) of the verification equation
         rhs = (t * pow(P, c, self.p)) % self.p
 
@@ -137,24 +138,25 @@ class PedersenCommitmentNonInteractive:
 
 
 class PedersenCommitmentEcc(ZeroKnowledgeProtocolNonInteractive):
-    
+
     curve = get_curve('secp256r1')
-    
-    def __init__(self, x = None, y = None) -> None:
+
+    def __init__(self, x=None, y=None) -> None:
         if x and y:
             self._x = x
             self._y = y
-            
+
     def response(self, g, h, P):
         r1 = PedersenCommitmentEcc.curve.get_random()
         r2 = PedersenCommitmentEcc.curve.get_random()
-        
-        t = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(r1, g), PedersenCommitmentEcc.curve.scalar_mult(r2, h))
-        c = PedersenCommitmentEcc.curve.hash_points( [ g, h, P, t ] )
-        s1 = ((r1 + c * self._x) % PedersenCommitmentEcc.curve.order )
-        s2 = ((r2 + c * self._y) % PedersenCommitmentEcc.curve.order )
+
+        t = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(
+            r1, g), PedersenCommitmentEcc.curve.scalar_mult(r2, h))
+        c = PedersenCommitmentEcc.curve.hash_points([g, h, P, t])
+        s1 = ((r1 + c * self._x) % PedersenCommitmentEcc.curve.order)
+        s2 = ((r2 + c * self._y) % PedersenCommitmentEcc.curve.order)
         return t, s1, s2
-    
+
     def verify(self, g, h, P, t, s1, s2):
         """
         Verify the validity of a given signature.
@@ -167,7 +169,9 @@ class PedersenCommitmentEcc(ZeroKnowledgeProtocolNonInteractive):
         Raises:
             AssertionError: If the signature is invalid.
         """
-        lhs = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(s1, g), PedersenCommitmentEcc.curve.scalar_mult(s2, h))
+        lhs = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(
+            s1, g), PedersenCommitmentEcc.curve.scalar_mult(s2, h))
         c = PedersenCommitmentEcc.curve.hash_points([g, h, P, t])
-        rhs = PedersenCommitmentEcc.curve.point_add(t , PedersenCommitmentEcc.curve.scalar_mult(c, P))
+        rhs = PedersenCommitmentEcc.curve.point_add(
+            t, PedersenCommitmentEcc.curve.scalar_mult(c, P))
         assert (lhs == rhs)
