@@ -116,6 +116,21 @@ def test_discrete_log_conjunction_ecc():
     client_b = DiscreteLogConjunctionEcc()
     client_b.verify(g, h, P, Q, (t1, s1), (t2, s2))
 
+def test_discrete_log_disjuntion_interactive():
+
+    g = 2
+    h = 3
+    p = 17
+    a = 4  # Secret value known to prover
+    P = pow(g, a, p)
+    Q = pow(h, a, p)  # Using the same 'a' for simplicity
+
+    client_a = DiscreteLogDisjunctionInteractive(g, h, P, Q, p, a)
+    client_b = DiscreteLogDisjunctionInteractive(g, h, P, Q, p) 
+    c = client_b.challenge()
+    t1c1s1, t2c2s2 = client_a.response(c)
+    client_b.verify(g, h, P, Q, t1c1s1, t2c2s2)   
+
 def test_discrete_log_disjunction():
     g = 2
     h = 3

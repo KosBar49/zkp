@@ -3,27 +3,78 @@ import hashlib
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 
-class DicreteLogDisjuntionInteractive(ZeroKnowledgeProtocol):
-    def __init__(self, g, h, P, Q, p, x = None):
-        
+class DiscreteLogDisjunctionInteractive:
+    def __init__(self, g, h, P, Q, p, x=None, knows='a'):
+        """
+        Initializes the ZKP instance for a disjunction of discrete logs.
+
+        :param g: Base g of the discrete logarithm problem.
+        :param h: Base h, used in the disjunction.
+        :param P: Public value g^a mod p.
+        :param Q: Public value h^b mod p.
+        :param p: Prime modulus.
+        :param x: The secret (either a or b).
+        :param knows: Indicates whether the prover knows 'a' or 'b'.
+        """
         self._g = g
         self._h = h
         self._P = P
         self._Q = Q
         self._p = p
         self._x = x
-        
+        self._knows = knows
+
     def challenge(self):
-        #TODO
-        pass
-    
-    def response(self, statement):
-        #TODO
-        pass
-    
-    def verify(self, statement, proof):
-        #TODO
-        pass
+        """
+        Generates a random challenge.
+
+        :return: A random challenge c.
+        """
+        self._c = random.randint(1, self._p - 1)
+        return self._c
+
+    def response(self, c):
+        """
+        Generates a response to the challenge.
+
+        :param c: The challenge.
+        :return: A tuple of proofs for the disjunction.
+        """
+        r1 = random.randint(0, self._p - 1)
+        s2 = random.randint(0, self._p - 1)
+
+        t1 = pow(self._g, r1, self._p) #if self._knows == 'a' else pow(self._g, s2, self._p)
+        self._c2 = random.randint(0, self._p - 1)
+        t2 = (pow(self._h, s2, self._p) * pow(self._Q, -self._c2, self._p)) % self._p
+
+        c1 = (c - self._c2) % self._p
+        s1 = (r1 + c1 * self._x) % (self._p - 1) #if self._knows == 'a' else random.randint(0, self._p - 1)
+
+        return (t1, c1, s1), (t2, self._c2, s2)
+
+    def verify(self, g, h, P, Q, t1c1s1, t2c2s2):
+        """
+        Verifies the response against the original challenge.
+
+        :param g, h, P, Q: Public parameters.
+        :param t1c1s1: The first tuple of proof components.
+        :param t2c2s2: The second tuple of proof components.
+        """
+        (t1, c1, s1) = t1c1s1
+        (t2, c2, s2) = t2c2s2
+
+        # Ensure the total challenge c equals the sum of c1 and c2.
+        assert (self._c == (c1 + c2) % self._p), "Challenge mismatch"
+
+        # Verify the first proof.
+        lhs1 = pow(g, s1, self._p)
+        rhs1 = (t1 * pow(P, c1, self._p)) % self._p
+        assert lhs1 == rhs1, "First proof failed"
+
+        # Verify the second proof.
+        lhs2 = pow(h, s2, self._p)
+        rhs2 = (t2 * pow(Q, c2, self._p)) % self._p
+        assert lhs2 == rhs2, "Second proof failed"
 
 class DiscreteLogDisjunction(ZeroKnowledgeProtocolNonInteractive):
 
