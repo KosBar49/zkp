@@ -3,6 +3,7 @@ import hashlib
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 
+
 class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
 
     def __init__(self, g, h, P, Q, p, a=None, b=None):
@@ -26,43 +27,55 @@ class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
         Generates commitments by the prover.
         :return: Tuple of commitments (g^r1, h^r2).
         """
-        self._r1 = random.randint(0, self._p - 1) if self._p else random.randint(0, 2**128)
-        self._r2 = random.randint(0, self._p - 1) if self._p else random.randint(0, 2**128)
-        commitment1 = pow(self._g, self._r1, self._p) if self._p else pow(self._g, self._r1)
-        commitment2 = pow(self._h, self._r2, self._p) if self._p else pow(self._h, self._r2)
+        self._r1 = random.randint(
+            0, self._p - 1) if self._p else random.randint(0, 2**128)
+        self._r2 = random.randint(
+            0, self._p - 1) if self._p else random.randint(0, 2**128)
+        commitment1 = pow(self._g, self._r1, self._p) if self._p else pow(
+            self._g, self._r1)
+        commitment2 = pow(self._h, self._r2, self._p) if self._p else pow(
+            self._h, self._r2)
         return commitment1, commitment2
-    
+
     def challenge(self):
         """
         Generates a challenge by the verifier.
         :return: Challenge (random integer).
         """
-        self._challenge = random.randint(1, self._p - 1) if self._p else random.randint(1, 2**128)
+        self._challenge = random.randint(
+            1, self._p - 1) if self._p else random.randint(1, 2**128)
         return self._challenge
-    
+
     def response(self):
         """
         Generates responses by the prover using the challenge.
         :param challenge: Challenge value from the verifier.
         :return: Tuple of responses (s1, s2).
         """
-        s1 = (self._r1 + self._challenge * self._a) % (self._p - 1) #if self._p else 2**129)
-        s2 = (self._r2 + self._challenge * self._b) % (self._p - 1) #if self._p else 2**129)
+        s1 = (self._r1 + self._challenge *
+              self._a) % (self._p - 1)  # if self._p else 2**129)
+        # if self._p else 2**129)
+        s2 = (self._r2 + self._challenge * self._b) % (self._p - 1)
         return s1, s2
 
     def verify(self, commitment1, commitment2, response1, response2, challange):
         """
         Verifies the responses from the prover.
         """
-        lhs1 = pow(self._g, response1, self._p) if self._p else pow(self._g, response1)
-        lhs2 = pow(self._h, response2, self._p) if self._p else pow(self._h, response2)
-        rhs1 = (commitment1 * pow(self._P, challange, self._p)) % self._p #if self._p else commitment1 * pow(self._P, self._challenge)
-        rhs2 = (commitment2 * pow(self._Q, challange, self._p)) % self._p #if self._p else commitment2 * pow(self._Q, self._challenge)
+        lhs1 = pow(self._g, response1, self._p) if self._p else pow(
+            self._g, response1)
+        lhs2 = pow(self._h, response2, self._p) if self._p else pow(
+            self._h, response2)
+        # if self._p else commitment1 * pow(self._P, self._challenge)
+        rhs1 = (commitment1 * pow(self._P, challange, self._p)) % self._p
+        # if self._p else commitment2 * pow(self._Q, self._challenge)
+        rhs2 = (commitment2 * pow(self._Q, challange, self._p)) % self._p
         assert lhs1 == rhs1 and lhs2 == rhs2
+
 
 class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive):
 
-    def __init__(self, g, h, P, Q, p, x=None, y = None):
+    def __init__(self, g, h, P, Q, p, x=None, y=None):
         """
         Initialize the protocol parameters.
         :param g, h: Generators of the group.
@@ -85,7 +98,8 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive):
         t1 = pow(self._g, r1, self._p)
         t2 = pow(self._h, r2, self._p)
 
-        cha1 = str(self._g) + str(self._h) + str(self._P) + str(self._Q) + str(t1) + str(t2)
+        cha1 = str(self._g) + str(self._h) + str(self._P) + \
+            str(self._Q) + str(t1) + str(t2)
         hash_ = hashlib.md5()
         hash_.update(cha1.encode())
         c = int(hash_.hexdigest(), 16) % self._p
@@ -96,7 +110,7 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive):
         return (t1, s1), (t2, s2)
 
     def verify(self, g, h, P, Q, t1cs1, t2cs2):
-        
+
         (t1, s1) = t1cs1
         (t2, s2) = t2cs2
 
@@ -114,19 +128,20 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive):
         print(lhs1)
         print(rhs2)
         print(lhs2)
-        assert lhs1 == rhs1 
+        assert lhs1 == rhs1
         assert lhs2 == rhs2
-        
+
+
 class DiscreteLogConjunctionEcc(ZeroKnowledgeProtocolNonInteractive):
-        
+
     curve = get_curve('secp256r1')
-    
-    def __init__(self, x = None, y = None):
-        
+
+    def __init__(self, x=None, y=None):
+
         if x and y:
             self._x = x
             self._y = y
-            
+
     def response(self, g, h, P, Q):
         """
         Calculates the response for the given parameters.
@@ -142,11 +157,11 @@ class DiscreteLogConjunctionEcc(ZeroKnowledgeProtocolNonInteractive):
         r2 = DiscreteLogConjunctionEcc.curve.get_random()
         t1 = DiscreteLogConjunctionEcc.curve.scalar_mult(r1, g)
         t2 = DiscreteLogConjunctionEcc.curve.scalar_mult(r2, h)
-        c = DiscreteLogConjunctionEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
-        s1 = ((r1 + c * self._x) % DiscreteLogConjunctionEcc.curve.order )
-        s2 = ((r2 + c * self._y) % DiscreteLogConjunctionEcc.curve.order )
+        c = DiscreteLogConjunctionEcc.curve.hash_points([g, h, P, Q, t1, t2])
+        s1 = ((r1 + c * self._x) % DiscreteLogConjunctionEcc.curve.order)
+        s2 = ((r2 + c * self._y) % DiscreteLogConjunctionEcc.curve.order)
         return (t1, s1), (t2, s2)
-    
+
     def verify(self, g, h, P, Q, t1s1, t2s2):
         """
         Verify the validity of a given signature.
@@ -161,9 +176,11 @@ class DiscreteLogConjunctionEcc(ZeroKnowledgeProtocolNonInteractive):
         """
         (t1, s1) = t1s1
         (t2, s2) = t2s2
-        c = DiscreteLogConjunctionEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        c = DiscreteLogConjunctionEcc.curve.hash_points([g, h, P, Q, t1, t2])
         lhs1 = DiscreteLogConjunctionEcc.curve.scalar_mult(s1, g)
-        rhs1 = DiscreteLogConjunctionEcc.curve.point_add(t1, DiscreteLogConjunctionEcc.curve.scalar_mult(c, P))
+        rhs1 = DiscreteLogConjunctionEcc.curve.point_add(
+            t1, DiscreteLogConjunctionEcc.curve.scalar_mult(c, P))
         lhs2 = DiscreteLogConjunctionEcc.curve.scalar_mult(s2, h)
-        rhs2 = DiscreteLogConjunctionEcc.curve.point_add(t2, DiscreteLogConjunctionEcc.curve.scalar_mult(c, Q))
+        rhs2 = DiscreteLogConjunctionEcc.curve.point_add(
+            t2, DiscreteLogConjunctionEcc.curve.scalar_mult(c, Q))
         assert (lhs1 == rhs1) and (lhs2 == rhs2)

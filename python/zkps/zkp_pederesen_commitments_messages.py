@@ -2,8 +2,6 @@ from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocolNonInteractive
 
 
-
-
 class PederesenCommitmentsEqualMessagesEcc(ZeroKnowledgeProtocolNonInteractive):
     
     curve = get_curve('secp256r1')

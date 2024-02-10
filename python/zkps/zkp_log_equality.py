@@ -2,7 +2,7 @@ import random
 import hashlib
 from typing import Tuple
 from .elliptic_curve import get_curve
-from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive   
+from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 
 
 class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
@@ -17,7 +17,8 @@ class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
         self._h = h
         self._xH = xH
         self._x = x
-        self._random = random.SystemRandom()  # Use cryptographically secure random generator
+        # Use cryptographically secure random generator
+        self._random = random.SystemRandom()
 
     def commitments(self) -> Tuple[int, int]:
         """
@@ -54,11 +55,13 @@ class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
         assert v1 == vG
         assert v2 == vH
 
+
 class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive):
     """
     Implementation based on https://asecuritysite.com/zero/dleq3
     """
-    def __init__(self, g, xG, h, xH, p, x = None):
+
+    def __init__(self, g, xG, h, xH, p, x=None):
         """
         :param g: generator 1
         :param xG: public key 1
@@ -80,15 +83,14 @@ class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive):
         :return: The calculated response value.
         """
         self._v = random.randint(0, self._p - 1)
-        self._vG = pow(self._g, self._v, self._p) 
+        self._vG = pow(self._g, self._v, self._p)
         self._vH = pow(self._h, self._v, self._p)
-        
+
         h = hashlib.md5()
         cha1 = str(self._vG)+str(self._vH)+str(self._g) + str(self._h)
-        h.update(cha1.encode()) 
+        h.update(cha1.encode())
         self._c = int(h.hexdigest(), 16)
-        
-        
+
         self._r = (self._v - self._x * self._c) % (self._p - 1)
         return self._c, self._r
 
@@ -110,24 +112,23 @@ class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive):
         c1 = int(h.hexdigest(), 16)
         assert c == c1
 
+
 class DiscreteLogEqualityEcc(ZeroKnowledgeProtocolNonInteractive):
 
     curve = get_curve('secp256r1')
-    
-    def __init__(self, x = None):
+
+    def __init__(self, x=None):
         """
         Initializes an instance of the class.
-        
+
         Parameters:
             x (optional): The value to assign to the private attribute _x.
-        
+
         Returns:
             None
         """
         if x:
             self._x = x
-            
-            
 
     def response(self, g, h, P, Q):
         """
@@ -143,8 +144,8 @@ class DiscreteLogEqualityEcc(ZeroKnowledgeProtocolNonInteractive):
         r = DiscreteLogEqualityEcc.curve.get_random()
         t1 = DiscreteLogEqualityEcc.curve.scalar_mult(r, g)
         t2 = DiscreteLogEqualityEcc.curve.scalar_mult(r, h)
-        c = DiscreteLogEqualityEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
-        s = ((r + c * self._x) % DiscreteLogEqualityEcc.curve.order )
+        c = DiscreteLogEqualityEcc.curve.hash_points([g, h, P, Q, t1, t2])
+        s = ((r + c * self._x) % DiscreteLogEqualityEcc.curve.order)
         return t1, t2, s
 
     def verify(self, g, h, P, Q, t1, t2, s):
@@ -163,9 +164,11 @@ class DiscreteLogEqualityEcc(ZeroKnowledgeProtocolNonInteractive):
         Raises:
             AssertionError: If the equality of the discrete logarithms is not verified.
         """
-        c = DiscreteLogEqualityEcc.curve.hash_points( [ g, h, P, Q, t1, t2 ] )
+        c = DiscreteLogEqualityEcc.curve.hash_points([g, h, P, Q, t1, t2])
         lhs1 = DiscreteLogEqualityEcc.curve.scalar_mult(s, g)
-        rhs1 = DiscreteLogEqualityEcc.curve.point_add(t1, DiscreteLogEqualityEcc.curve.scalar_mult(c, P))
-        lhs2 = DiscreteLogEqualityEcc.curve.scalar_mult(s,h)
-        rhs2 = DiscreteLogEqualityEcc.curve.point_add(t2, DiscreteLogEqualityEcc.curve.scalar_mult(c, Q))
+        rhs1 = DiscreteLogEqualityEcc.curve.point_add(
+            t1, DiscreteLogEqualityEcc.curve.scalar_mult(c, P))
+        lhs2 = DiscreteLogEqualityEcc.curve.scalar_mult(s, h)
+        rhs2 = DiscreteLogEqualityEcc.curve.point_add(
+            t2, DiscreteLogEqualityEcc.curve.scalar_mult(c, Q))
         assert (lhs1 == rhs1) and (lhs2 == rhs2)

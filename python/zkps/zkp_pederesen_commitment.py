@@ -1,11 +1,11 @@
 from .elliptic_curve import get_curve
-from .interface_zkp import ZeroKnowledgeProtocolNonInteractive
+from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 
 import random
 import hashlib
 
 
-class PedersenCommitmentInteractive:
+class PedersenCommitmentInteractive(ZeroKnowledgeProtocol):
     """
     Interactive Pedersen Commitment in a cyclic group of prime order.
     """
@@ -73,7 +73,7 @@ class PedersenCommitmentInteractive:
         return lhs == rhs
 
 
-class PedersenCommitmentNonInteractive:
+class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive):
     """
     Non-interactive Pedersen Commitment in a cyclic group of prime order.
     """
