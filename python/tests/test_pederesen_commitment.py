@@ -27,17 +27,13 @@ def test_pedersen_commitment():
 
     # Public value P (for simplicity, it's not directly derived from x, y in this example)
     P = (pow(g, secret_x, p) * pow(h, secret_y, p)) % p
-
     # Initialize PedersenCommitmentNonInteractive with secrets
     client_a = PedersenCommitment(p, g, h, secret_x, secret_y)
-    
     # Client A generates a response (commitment and proofs) for the public value P
     (t, s1, s2) = client_a.response(P)
-    
     # Initialize another PedersenCommitmentNonInteractive instance for verification
     # No need for secrets since we're only verifying
     client_b = PedersenCommitment(p, g, h)
-    
     # Client B verifies the commitment and proofs
     client_b.verify(g, h, P, t, s1, s2)
 

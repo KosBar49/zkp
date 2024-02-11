@@ -1,5 +1,5 @@
 from ..zkps.zkp_pederesen_commitments import *
-  
+
 def test_pederesen_commitment_eq_message_randomness_ecc():
     secret = 5
     secret_2 = 7

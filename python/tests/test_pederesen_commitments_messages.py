@@ -4,10 +4,18 @@ def test_pederesen_commitments():
     p = 1019
     g = 2 
     h = 3     
-    x = 5
 
-    # client_a = PederesenCommitmets
+    secret1 = 5
+    secret2 = 7
+    secret3 = 11
 
+    client_a = PederesenCommitmentsEqual(p, g, h, secret1, secret2, secret3)
+    P = (pow(g, secret1, p) * pow(h, secret2, p))
+    Q = (pow(g, secret1, p) * pow(h, secret3, p)) 
+
+    t1s1, t2s2, s3 = client_a.response(P, Q)
+    client_b = PederesenCommitmentsEqual(p, g, h)
+    client_b.verify(P, Q, t1s1, t2s2, s3)
 
 def test_pederesen_commitments_ecc():
     secret = 5
