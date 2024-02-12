@@ -96,8 +96,7 @@ class PederesenCommitmentsEqualMessages(ZeroKnowledgeProtocolNonInteractive):
         print(rhs1)
         print(lhs2)
         # Assertions to verify the commitments
-        assert lhs1 == rhs1, "Proof failed for lhs1 and rhs1 comparison."
-        assert lhs2 == rhs2, "Proof failed for lhs2 and rhs2 comparison."
+        assert lhs1 == rhs1 and lhs2 == rhs2
 
 class PederesenCommitmentsEqualMessagesEcc(ZeroKnowledgeProtocolNonInteractive):
     
@@ -131,4 +130,4 @@ class PederesenCommitmentsEqualMessagesEcc(ZeroKnowledgeProtocolNonInteractive):
         c = PederesenCommitmentsEqualMessagesEcc.curve.hash_points([g1, h1, g2, h2, P, Q, t1, t2])
         rhs1 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(t1 , PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(c, P))
         rhs2 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(t2 , PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(c, Q))
-        assert (lhs1 == rhs1) and (lhs2 == rhs2)
+        assert lhs1 == rhs1 and lhs2 == rhs2
