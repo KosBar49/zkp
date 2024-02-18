@@ -1,6 +1,94 @@
+import random 
+import hashlib
 from .elliptic_curve import get_curve
-from .interface_zkp import ZeroKnowledgeProtocolNonInteractive
+from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 
+
+class PedersenCommitmentsEqualInteractive(ZeroKnowledgeProtocol):
+    def __init__(self, p=None, x=None, y=None):
+        self._x = x
+        self._y = y
+        self.p = p  # Large prime number for modulo operations
+    
+    def _mod_exp(self, base, exponent):
+        """Performs modular exponentiation."""
+        return pow(base, exponent, self.p)
+
+    def challenge(self):
+        """Verifier generates and sends a random challenge to the prover."""
+        self._c = random.randint(1, self.p - 1)
+        return self._c
+
+    def response(self, g1, h1, g2, h2, c):
+        """Prover computes the response to the challenge."""
+        r1 = random.randint(1, self.p - 1)
+        r2 = random.randint(1, self.p - 1)
+        
+        t1 = (self._mod_exp(g1, r1) * self._mod_exp(h1, r2)) % self.p
+        t2 = (self._mod_exp(g2, r1) * self._mod_exp(h2, r2)) % self.p
+        
+        s1 = (r1 + c * self._x) % (self.p - 1)
+        s2 = (r2 + c * self._y) % (self.p - 1)
+        
+        return (t1, s1), (t2, s2)
+
+    def verify(self, g1, h1, g2, h2, P, Q, t1s1, t2s2):
+        (t1, s1) = t1s1
+        (t2, s2) = t2s2
+        """Verifier checks the prover's response against the given challenge."""
+        lhs1 = (self._mod_exp(g1, s1) * self._mod_exp(h1, s2)) % self.p
+        lhs2 = (self._mod_exp(g2, s1) * self._mod_exp(h2, s2)) % self.p
+        rhs1 = (t1 * self._mod_exp(P, self._c)) % self.p
+        rhs2 = (t2 * self._mod_exp(Q, self._c)) % self.p
+        assert lhs1 == rhs1 
+        assert lhs2 == rhs2
+
+class PedersenCommitmentsEqual(ZeroKnowledgeProtocolNonInteractive):
+
+    def __init__(self, x=None, y=None, p=None):
+        self._x = x
+        self._y = y
+        self.p = p  # Large prime number for modulo operations
+    
+    def _hash_mod_p(self, values):
+        """Hashes a list of values and reduces the result modulo p."""
+        hash_input = ''.join([str(v) for v in values]).encode('utf-8')
+        hash_output = int(hashlib.sha256(hash_input).hexdigest(), 16)
+        return hash_output % self.p
+    
+    def _mod_exp(self, base, exponent):
+        """Performs modular exponentiation."""
+        return pow(base, exponent, self.p)
+    
+    def response(self, g1, h1, g2, h2, P, Q):
+        
+        r1 = random.randint(1, self.p - 1)
+        r2 = random.randint(1, self.p - 1)
+        
+        t1 = (self._mod_exp(g1, r1) * self._mod_exp(h1, r2)) % self.p 
+        t2 = (self._mod_exp(g2, r1) * self._mod_exp(h2, r2)) % self.p
+        
+        c = self._hash_mod_p([g1, h1, g2, h2, P, Q, t1, t2])
+        
+        s1 = (r1 + c * self._x) % ( self.p - 1)
+        s2 = (r2 + c * self._y) % ( self.p - 1)
+        
+        return (t1, s1), (t2, s2)
+    
+    def verify(self, g1, h1, g2, h2, P, Q, t1s1, t2s2):
+        (t1, s1) = t1s1
+        (t2, s2) = t2s2
+        
+        lhs1 = (self._mod_exp(g1, s1) * self._mod_exp(h1, s2)) % self.p
+        lhs2 = (self._mod_exp(g2, s1) * self._mod_exp(h2, s2)) % self.p
+        
+        c = self._hash_mod_p([g1, h1, g2, h2, P, Q, t1, t2])
+        
+        rhs1 = (t1 * self._mod_exp(P, c)) % self.p
+        rhs2 = (t2 * self._mod_exp(Q, c)) % self.p
+        
+        assert (lhs1 == rhs1) 
+        assert (lhs2 == rhs2)
 
 class PederesenCommitmentsEqualEcc(ZeroKnowledgeProtocolNonInteractive):
     
