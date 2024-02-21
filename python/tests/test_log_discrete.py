@@ -6,25 +6,26 @@ def test_discrete_log_interactive():
     P = g**x
 
     client_a = DiscreteLogInteractive(2, P, 13, 5)
-    t = client_a.commitment()
-
     client_b = DiscreteLogInteractive(2, P, 13)
+    t = client_a.commitment()
     c = client_b.challenge()
-    res = client_a.response(c)
+    s = client_a.response(c)
     
-    client_b.verify(res, t)
+    client_b.verify(s, t)
 
 def test_discrete_log():
     g = 2
     x = 5
     P = g**x
     client_a = DiscreteLog(g, P, 13, x)
-    t, s = client_a.response()
     client_b = DiscreteLog(g, P, 13)
+    t, s = client_a.response()
+    
     client_b.verify(s, t)
     
 def test_discrete_log_ecc():
     client_a = DiscreteLogEcc(5)
-    (t, s) = client_a.response()
     client_b = DiscreteLogEcc()
+    (t, s) = client_a.response()
+    
     client_b.verify(s, t)
