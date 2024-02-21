@@ -74,15 +74,15 @@ class DiscreteLog(ZeroKnowledgeProtocolNonInteractive):
             int: The calculated response value.
         """
         self._v = random.randint(0, self._p - 1)
-        V = pow(self._g, self._v, self._p)
-        chal = str(self._g) + str(self._y) + str(V)
+        t = pow(self._g, self._v, self._p)
+        chal = str(self._g) + str(self._y) + str(t)
         h = hashlib.md5()
         h.update(chal.encode())
 
         self._c = int(h.hexdigest(), 16)
-        return (self._v - self._c * self._x) % (self._p - 1), V
+        return t, (self._v - self._c * self._x) % (self._p - 1)
 
-    def verify(self, r, V):
+    def verify(self, s, t):
         """
         Verify the validity of a given signature.
         Parameters:
@@ -94,12 +94,12 @@ class DiscreteLog(ZeroKnowledgeProtocolNonInteractive):
         Raises:
             AssertionError: If the signature is invalid.
         """
-        chal = str(self._g) + str(self._y) + str(V)
+        chal = str(self._g) + str(self._y) + str(t)
         h = hashlib.md5()
         h.update(chal.encode())
         c = int(h.hexdigest(), 16)
-        check = (pow(self._g, r, self._p) * pow(self._y, c, self._p)) % self._p
-        assert V == check
+        check = (pow(self._g, s, self._p) * pow(self._y, c, self._p)) % self._p
+        assert t == check
 
 
 class DiscreteLogEcc(ZeroKnowledgeProtocolNonInteractive):
@@ -135,7 +135,7 @@ class DiscreteLogEcc(ZeroKnowledgeProtocolNonInteractive):
         s = ((r + c * self._x) % DiscreteLogEcc.curve.order)
         return t, s
 
-    def verify(self, t, s):
+    def verify(self, s, t):
         """
         Verify the equality of two values by performing a discrete logarithm non-interactive elliptic curve cryptography (ECC) verification.
 

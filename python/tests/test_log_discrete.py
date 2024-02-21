@@ -19,7 +19,7 @@ def test_discrete_log():
     x = 5
     P = g**x
     client_a = DiscreteLog(g, P, 13, x)
-    s, t = client_a.response()
+    t, s = client_a.response()
     client_b = DiscreteLog(g, P, 13)
     client_b.verify(s, t)
     
@@ -27,4 +27,4 @@ def test_discrete_log_ecc():
     client_a = DiscreteLogEcc(5)
     (t, s) = client_a.response()
     client_b = DiscreteLogEcc()
-    client_b.verify(t, s)
+    client_b.verify(s, t)
