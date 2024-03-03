@@ -36,7 +36,7 @@ class EllipticCurve(ecc.Curve):
         if not hash:
             raise ValueError(f'Unsupported hash function: {self._hash_function}')
         for item in list_:
-            print(f"hashing {item}")
+            #print(f"hashing {item}")
             hash.update(item)
         return int(hash.hexdigest(), 16)
 

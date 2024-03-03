@@ -1,3 +1,4 @@
+import time
 import pytest
 
 X = 5
@@ -47,3 +48,12 @@ def Q():
 @pytest.fixture(scope="session") 
 def p():
     return MODULO
+
+@pytest.fixture(autouse=True)
+def time_test(request):
+    start_time = time.time()
+    # Yield to allow test execution to proceed
+    yield
+    # After the test has finished, calculate the time taken and print it
+    duration = ( time.time() - start_time ) * 1000
+    print(f"\n{request.node.name} took {duration:.2f} miliseconds to complete")
