@@ -1,14 +1,19 @@
 import time
 import pytest
+from ..zkps.elliptic_curve import get_curve
 
 X = 5
 Y = 7
 G = 2
 H = 3
+
 MODULO = 1019
 XP = pow(G, X, MODULO)
 XQ = pow(H, X, MODULO) #for test log equality
 YQ = pow(H, Y, MODULO)
+
+CURVE = get_curve('secp256r1')
+G1C, H1C, G2C, H2C = CURVE.get_generators(4)
 
 #secret 1
 @pytest.fixture(scope="session")
@@ -48,6 +53,28 @@ def Q():
 @pytest.fixture(scope="session") 
 def p():
     return MODULO
+
+# h^y
+@pytest.fixture(scope="session") 
+def g1c():
+    return G1C
+
+# h^y
+@pytest.fixture(scope="session") 
+def h1c():
+    return H1C
+
+# h^y
+@pytest.fixture(scope="session") 
+def g2c():
+    return G2C
+
+# h^y
+@pytest.fixture(scope="session") 
+def h2c():
+    return H2C
+
+
 
 @pytest.fixture(autouse=True)
 def time_test(request):

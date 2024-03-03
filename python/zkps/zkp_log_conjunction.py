@@ -53,8 +53,8 @@ class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
         :return: Tuple of responses (s1, s2).
         """
         s1 = (self._r1 + self._challenge *
-              self._a) % (self._p - 1)  # if self._p else 2**129)
-        # if self._p else 2**129)
+              self._a) % (self._p - 1)
+
         s2 = (self._r2 + self._challenge * self._b) % (self._p - 1)
         return s1, s2
 
@@ -66,9 +66,7 @@ class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
             self._g, response1)
         lhs2 = pow(self._h, response2, self._p) if self._p else pow(
             self._h, response2)
-        # if self._p else commitment1 * pow(self._P, self._challenge)
         rhs1 = (commitment1 * pow(self._P, challange, self._p)) % self._p
-        # if self._p else commitment2 * pow(self._Q, self._challenge)
         rhs2 = (commitment2 * pow(self._Q, challange, self._p)) % self._p
         assert lhs1 == rhs1 and lhs2 == rhs2
 
