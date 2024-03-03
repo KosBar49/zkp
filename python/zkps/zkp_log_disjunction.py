@@ -33,28 +33,39 @@ class DiscreteLogDisjunctionInteractive(ZeroKnowledgeProtocol):
         self._c = random.randint(1, self._p - 1)
         return self._c
 
+    def commitment(self):
+        """
+        Generate commitment values for a cryptographic protocol.
+
+        This function does not take any parameters and returns a tuple of two integers representing the commitment values.
+        """
+        self._r1 = random.randint(0, self._p - 1)
+        self._s2 = random.randint(0, self._p - 1)
+        self._c2 = random.randint(0, self._p - 1)
+        t1 = pow(self._g, self._r1, self._p)
+
+        t2 = (pow(self._h, self._s2, self._p) * pow(self._Q, - self._c2, self._p)) % self._p
+        return (t1, t2)
+        
     def response(self, c):
         """
-        Generates a response to the challenge.
+        Calculate the response to a given challenge. 
 
-        :param c: The challenge.
-        :return: A tuple of proofs for the disjunction.
+        Args:
+            c: The challenge value.
+
+        Returns:
+            Tuple of two tuples:
+                - Tuple of (c1, s1) values calculated from the challenge.
+                - Tuple of (self._c2, self._s2) values.
+
         """
-        r1 = random.randint(0, self._p - 1)
-        s2 = random.randint(0, self._p - 1)
-        c2 = random.randint(0, self._p - 1)
-        # if self._knows == 'a' else pow(self._g, s2, self._p)
-        t1 = pow(self._g, r1, self._p)
+        c1 = (c - self._c2) % self._p
+        s1 = (self._r1 + c1 * self._x) % (self._p - 1)
 
-        t2 = (pow(self._h, s2, self._p) * pow(self._Q, - c2, self._p)) % self._p
+        return (c1, s1), (self._c2, self._s2)
 
-        c1 = (c - c2) % self._p
-        # if self._knows == 'a' else random.randint(0, self._p - 1)
-        s1 = (r1 + c1 * self._x) % (self._p - 1)
-
-        return (t1, c1, s1), (t2, c2, s2)
-
-    def verify(self, g, h, P, Q, t1c1s1, t2c2s2):
+    def verify(self, g, h, P, Q, c1s1, c2s2, t1, t2):
         """
         Verifies the response against the original challenge.
 
@@ -62,8 +73,8 @@ class DiscreteLogDisjunctionInteractive(ZeroKnowledgeProtocol):
         :param t1c1s1: The first tuple of proof components.
         :param t2c2s2: The second tuple of proof components.
         """
-        (t1, c1, s1) = t1c1s1
-        (t2, c2, s2) = t2c2s2
+        (c1, s1) = c1s1
+        (c2, s2) = c2s2
 
         # Ensure the total challenge c equals the sum of c1 and c2.
         assert (self._c == (c1 + c2) % self._p), "Challenge mismatch"

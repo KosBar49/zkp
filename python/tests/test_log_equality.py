@@ -21,8 +21,8 @@ def test_discrete_log_equality():
     g = 2
     h = 3
     p = 13
-    P = g**x
-    Q = h**x
+    P = pow(g, x, p)
+    Q = pow(h, x, p)
 
     client_a = DiscreteLogEquality(g, P, h, Q, p, x)
     client_b = DiscreteLogEquality(g, P, h, Q, p)

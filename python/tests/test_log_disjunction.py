@@ -10,10 +10,11 @@ def test_discrete_log_disjuntion_interactive():
 
     client_a = DiscreteLogDisjunctionInteractive(g, h, P, Q, p, x)
     client_b = DiscreteLogDisjunctionInteractive(g, h, P, Q, p)
-     
+    
+    (t1, t2) = client_a.commitment()
     c = client_b.challenge()
-    t1c1s1, t2c2s2 = client_a.response(c)
-    client_b.verify(g, h, P, Q, t1c1s1, t2c2s2)   
+    c1s1, c2s2 = client_a.response(c)
+    client_b.verify(g, h, P, Q, c1s1, c2s2, t1, t2)   
 
 def test_discrete_log_disjunction():
     g = 2

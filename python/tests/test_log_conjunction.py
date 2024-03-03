@@ -13,9 +13,9 @@ def test_discrete_log_interactive_conjunction():
     client_b = DiscreteLogConjunctionInteractive(g, h, P, Q, p)
     
     t1, t2 = client_a.commitment()
-    challenge = client_a.challenge()
+    c = client_a.challenge()
     s1, s2 = client_a.response()
-    client_b.verify(t1, t2, s1, s2, challenge)
+    client_b.verify(t1, t2, s1, s2, c)
     
 def test_discrete_log_conjunction():
     g = 2
