@@ -34,14 +34,14 @@ def test_discrete_log_conjunction():
 
     
 def test_discrete_log_conjunction_ecc():
-    a = 5
-    b = 7
+    x = 5
+    y = 7
+    g, h = DiscreteLogConjunctionEcc.curve.get_generators(2)
+    P = DiscreteLogConjunctionEcc.curve.scalar_mult(x, g)
+    Q = DiscreteLogConjunctionEcc.curve.scalar_mult(y, h)
     
-    client_a = DiscreteLogConjunctionEcc(a, b)
+    client_a = DiscreteLogConjunctionEcc(x, y)
     client_b = DiscreteLogConjunctionEcc()
     
-    g, h = DiscreteLogConjunctionEcc.curve.get_generators(2)
-    P = DiscreteLogConjunctionEcc.curve.scalar_mult(a, g)
-    Q = DiscreteLogConjunctionEcc.curve.scalar_mult(b, h)
     (t1, s1), (t2, s2) = client_a.response(g, h, P, Q)
     client_b.verify(g, h, P, Q, (t1, s1), (t2, s2))

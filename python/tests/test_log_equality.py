@@ -1,35 +1,43 @@
 from ..zkps.zkp_log_equality import *
 
 def test_discrete_log_equality_interactive():
+    x = 5 
+    g = 2
+    h = 3
+    p = 13
+    P = g**x
+    Q = h**x
 
-    y = 2**5
-    h = 3**5
-
-    client_a = DiscreteLogEqualityInteractive(2, y, 3, h, 13, 5)
-    vG, vH = client_a.commitments()
-    client_b = DiscreteLogEqualityInteractive(2, y, 3, h, 13)
-    C = client_b.challenge()
+    client_a = DiscreteLogEqualityInteractive(g, P, h, Q, p, x)
+    client_b = DiscreteLogEqualityInteractive(g, P, h, Q, p)
     
-    r = client_a.response(C)
-    client_b = DiscreteLogEqualityInteractive(2, y, 3, h, 13)
-    client_b.verify(C, r, vG, vH)
+    t1, t2 = client_a.commitments()
+    c = client_b.challenge()
+    s = client_a.response(c)
+    client_b.verify(c, s, t1, t2)
     
 def test_discrete_log_equality():
+    x = 5
+    g = 2
+    h = 3
+    p = 13
+    P = g**x
+    Q = h**x
 
-    y = 2**5
-    h = 3**5
-
-    client_a = DiscreteLogEquality(2, y, 3, h, 13, 5)
-    C, r = client_a.response()
-    client_b = DiscreteLogEquality(2, y, 3, h, 13)
-    client_b.verify(C, r)
+    client_a = DiscreteLogEquality(g, P, h, Q, p, x)
+    client_b = DiscreteLogEquality(g, P, h, Q, p)
+    
+    c, s = client_a.response()
+    client_b.verify(c, s)
 
 def test_discrete_log_equality_ecc():
-    secret = 5
-    client_a = DiscreteLogEqualityEcc(secret)
+    x = 5
     g, h = DiscreteLogEqualityEcc.curve.get_generators(2)
-    P = DiscreteLogEqualityEcc.curve.scalar_mult(secret, g)
-    Q = DiscreteLogEqualityEcc.curve.scalar_mult(secret, h)
-    (t1, t2, s) = client_a.response(g, h, P, Q)
+    P = DiscreteLogEqualityEcc.curve.scalar_mult(x, g)
+    Q = DiscreteLogEqualityEcc.curve.scalar_mult(x, h)
+    
+    client_a = DiscreteLogEqualityEcc(x)
     client_b = DiscreteLogEqualityEcc()
+    
+    (t1, t2, s) = client_a.response(g, h, P, Q)
     client_b.verify(g, h, P, Q, t1, t2, s)
