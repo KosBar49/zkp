@@ -1,10 +1,6 @@
 from ..zkps.zkp_log_discrete import *
 
-def test_discrete_log_interactive():
-    g = 2
-    x = 5
-    p = 13
-    P = pow(g, x, p)
+def test_discrete_log_interactive(x, g, p, P):
 
     client_a = DiscreteLogInteractive(g, P, p, x)
     client_b = DiscreteLogInteractive(g, P, p)
@@ -14,11 +10,7 @@ def test_discrete_log_interactive():
     s = client_a.response(c)
     client_b.verify(s, t)
 
-def test_discrete_log():
-    g = 2
-    x = 5
-    p = 13
-    P = pow(g, x, p)
+def test_discrete_log(x, g, p, P):
     
     client_a = DiscreteLog(g, P, p, x)
     client_b = DiscreteLog(g, P, p)

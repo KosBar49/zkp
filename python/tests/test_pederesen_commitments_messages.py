@@ -1,12 +1,8 @@
 from ..zkps.zkp_pederesen_commitments_messages import *
 
 
-def test_pederesen_commitments_interactive():
-    x = 5
-    y = 7
-    p = 1019
-    g = 2 
-    h = 3     
+def test_pederesen_commitments_interactive(x, y, p, g, h):
+    
     z = 11
     P = (pow(g, x, p) * pow(h, y, p))
     Q = (pow(g, x, p) * pow(h, z, p)) 
@@ -18,26 +14,20 @@ def test_pederesen_commitments_interactive():
     t1s1, t2s2, s3 = client_a.response(c)
     client_b.verify(P, Q, t1s1, t2s2, s3)
 
-def test_pederesen_commitments():
-    p = 1019
-    g = 2 
-    h = 3     
-
-    x = 5
-    y = 7
+def test_pederesen_commitments(x, y, p, g, h):
+    
     z = 11
-
-    client_a = PederesenCommitmentsEqualMessages(p, g, h, x, y, z)
     P = (pow(g, x, p) * pow(h, y, p))
-    Q = (pow(g, x, p) * pow(h, z, p)) 
-
-    t1s1, t2s2, s3 = client_a.response(P, Q)
+    Q = (pow(g, x, p) * pow(h, z, p))
+    
+    client_a = PederesenCommitmentsEqualMessages(p, g, h, x, y, z)
     client_b = PederesenCommitmentsEqualMessages(p, g, h)
+ 
+    t1s1, t2s2, s3 = client_a.response(P, Q)   
     client_b.verify(P, Q, t1s1, t2s2, s3)
 
-def test_pederesen_commitments_ecc():
-    x = 5
-    y = 7
+def test_pederesen_commitments_ecc(x, y):
+
     z = 11
     
     client_a = PederesenCommitmentsEqualMessagesEcc(x, y, z)

@@ -8,7 +8,7 @@ class EllipticCurve(ecc.Curve):
     supported_hash_functions = {
         'md5': md5, 'sha1': sha1, 'sha256': sha256, 'sha512': sha512}
 
-    def __init__(self, type_, a, b, G, p, n):
+    def __init__(self, type_, a, b, G, p, n, hash_function='sha256'):
         super().__init__(a, b, p, G, order=n)
         self._type = type_
         self.a = a
@@ -16,6 +16,7 @@ class EllipticCurve(ecc.Curve):
         self.G = G
         self.p = p
         self.n = n
+        self._hash_function = hash_function
 
     # def __str__(self):
     #     return f"Curve: {self._type}\nParameters:\n a={self.a}\n b={self.b}\n G={self.G}\n p={self.p}\n n={self.n}"
@@ -29,11 +30,11 @@ class EllipticCurve(ecc.Curve):
             gs.append(self.power(G, s))
         return gs
 
-    def hash_list(self, list_, hash_function='sha256'):
+    def hash_list(self, list_):
         hash = EllipticCurve.supported_hash_functions.get(
-            hash_function, None)()
+            self._hash_function, None)()
         if not hash:
-            raise ValueError(f'Unsupported hash function: {hash_function}')
+            raise ValueError(f'Unsupported hash function: {self._hash_function}')
         for item in list_:
             print(f"hashing {item}")
             hash.update(item)
