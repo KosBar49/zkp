@@ -1,3 +1,4 @@
+from socket import SocketIO
 import time
 import pytest
 from ..zkps.elliptic_curve import get_curve
@@ -6,6 +7,8 @@ X = 5
 Y = 7
 G = 2
 H = 3
+G2 = 5
+H2 = 7
 
 MODULO = 1019
 XP = pow(G, X, MODULO)
@@ -22,6 +25,14 @@ YQC = CURVE.scalar_mult(Y, H1C)
 def x():
     return 5
 
+@pytest.fixture(scope="session")
+def g2():
+    return G2
+
+@pytest.fixture(scope="session")
+def h2():
+    return H2 
+ 
 #sectret 2
 @pytest.fixture(scope="session") 
 def y():
@@ -90,6 +101,14 @@ def QC():
 @pytest.fixture(scope="session")
 def p_ecc_pederesen_commitment():
     return CURVE.point_add(CURVE.scalar_mult(X, G1C), CURVE.scalar_mult(Y, H1C))
+
+@pytest.fixture(scope="session")
+def p_test_pederesnen_commitment_eq_message_randomness():
+    return (pow(G, X, MODULO) * pow(H, Y, MODULO)) % MODULO
+
+@pytest.fixture(scope="session")
+def q_test_pederesnen_commitment_eq_message_randomness():
+    return (pow(G2, X, MODULO) * pow(H2, Y, MODULO)) % MODULO    
 
 @pytest.fixture(autouse=True)
 def time_test(request):
