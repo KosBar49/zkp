@@ -26,15 +26,15 @@ def test_pederesen_commitments(x, y, p, g, h):
     t1s1, t2s2, s3 = client_a.response(P, Q)   
     client_b.verify(P, Q, t1s1, t2s2, s3)
 
-def test_pederesen_commitments_ecc(x, y):
+def test_pederesen_commitments_ecc(x, y, g1c, h1c, g2c, h2c):
 
     z = 11
     
     client_a = PederesenCommitmentsEqualMessagesEcc(x, y, z)
-    g1, h1, g2, h2 = PederesenCommitmentsEqualMessagesEcc.curve.get_generators(4)
-    P = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(x, g1), PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(y, h1))
-    Q = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(x, g2), PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(z, h2))
+
+    P = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(x, g1c), PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(y, h1c))
+    Q = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(x, g2c), PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(z, h2c))
     
-    (t1, s1), (t2, s2), s3 = client_a.response(g1, h1, g2, h2, P, Q)
+    (t1, s1), (t2, s2), s3 = client_a.response(g1c, h1c, g2c, h2c, P, Q)
     client_b = PederesenCommitmentsEqualMessagesEcc()
-    client_b.verify(g1, h1, g2, h2, P, Q, (t1, s1), (t2, s2), s3)
+    client_b.verify(g1c, h1c, g2c, h2c, P, Q, (t1, s1), (t2, s2), s3)

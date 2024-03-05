@@ -18,14 +18,12 @@ def test_discrete_log_equality(x, g, h, p, P, xQ):
     c, s = client_a.response()
     client_b.verify(c, s)
 
-def test_discrete_log_equality_ecc(x):
+def test_discrete_log_equality_ecc(x, g1c, h1c, PC):
     
-    g, h = DiscreteLogEqualityEcc.curve.get_generators(2)
-    P = DiscreteLogEqualityEcc.curve.scalar_mult(x, g)
-    Q = DiscreteLogEqualityEcc.curve.scalar_mult(x, h)
+    Q = DiscreteLogEqualityEcc.curve.scalar_mult(x, h1c)
     
     client_a = DiscreteLogEqualityEcc(x)
     client_b = DiscreteLogEqualityEcc()
     
-    (t1, t2, s) = client_a.response(g, h, P, Q)
-    client_b.verify(g, h, P, Q, t1, t2, s)
+    (t1, t2, s) = client_a.response(g1c, h1c, PC, Q)
+    client_b.verify(g1c, h1c, PC, Q, t1, t2, s)

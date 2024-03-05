@@ -20,14 +20,10 @@ def test_discrete_log_conjunction(x, y, g, h, p, P, Q):
     client_b.verify(g, h, P, Q, (t1, s1), (t2, s2))
 
     
-def test_discrete_log_conjunction_ecc(x, y):
-
-    g, h = DiscreteLogConjunctionEcc.curve.get_generators(2)
-    P = DiscreteLogConjunctionEcc.curve.scalar_mult(x, g)
-    Q = DiscreteLogConjunctionEcc.curve.scalar_mult(y, h)
+def test_discrete_log_conjunction_ecc(x, y, g1c, h1c, PC, QC):
     
     client_a = DiscreteLogConjunctionEcc(x, y)
     client_b = DiscreteLogConjunctionEcc()
     
-    (t1, s1), (t2, s2) = client_a.response(g, h, P, Q)
-    client_b.verify(g, h, P, Q, (t1, s1), (t2, s2))
+    (t1, s1), (t2, s2) = client_a.response(g1c, h1c, PC, QC)
+    client_b.verify(g1c, h1c, PC, QC, (t1, s1), (t2, s2))

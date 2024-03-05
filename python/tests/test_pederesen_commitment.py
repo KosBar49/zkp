@@ -26,13 +26,10 @@ def test_pedersen_commitment():
     (t, s1, s2) = client_a.response(P)
     client_b.verify(G, H, P, t, s1, s2)
 
-def test_pederesen_commitment_ecc(x, y):
+def test_pederesen_commitment_ecc(x, y, g1c, h1c, p_ecc_pederesen_commitment):
 
     client_a = PedersenCommitmentEcc(x, y)
     client_b = PedersenCommitmentEcc()
-
-    g, h = PedersenCommitmentEcc.curve.get_generators(2)
-    P = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(x, g), PedersenCommitmentEcc.curve.scalar_mult(y, h))
     
-    (t, s1, s2) = client_a.response(g, h, P)
-    client_b.verify(g, h, P, t, s1, s2)
+    (t, s1, s2) = client_a.response(g1c, h1c, p_ecc_pederesen_commitment)
+    client_b.verify(g1c, h1c, p_ecc_pederesen_commitment, t, s1, s2)

@@ -14,6 +14,8 @@ YQ = pow(H, Y, MODULO)
 
 CURVE = get_curve('secp256r1')
 G1C, H1C, G2C, H2C = CURVE.get_generators(4)
+XPC = CURVE.scalar_mult(X, G1C)
+YQC = CURVE.scalar_mult(Y, H1C)
 
 #secret 1
 @pytest.fixture(scope="session")
@@ -74,7 +76,20 @@ def g2c():
 def h2c():
     return H2C
 
+# P value for most of the ecc tests, c is shortcut for ecc
+@pytest.fixture(scope="session")
+def PC():
+    return XPC
 
+# Q value for most of the ecc tests, c is shortcut for ecc  
+@pytest.fixture(scope="session")
+def QC():
+    return YQC
+
+# P value for pederesen commitment ECC test
+@pytest.fixture(scope="session")
+def p_ecc_pederesen_commitment():
+    return CURVE.point_add(CURVE.scalar_mult(X, G1C), CURVE.scalar_mult(Y, H1C))
 
 @pytest.fixture(autouse=True)
 def time_test(request):
