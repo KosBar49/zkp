@@ -15,10 +15,10 @@ with open('results.txt', 'r') as file:
         test_name = test_name.replace('test_', '')
         # Categorize the test based on its name
         if 'interactive' in test_name:
-            test_name = test_name.replace('interactive_', '')
+            test_name = test_name.replace('_interactive', '')
             interactive_tests[test_name] = runtime
         elif 'ecc' in test_name:
-            test_name = test_name.replace('ecc_', '')
+            test_name = test_name.replace('_ecc', '')
             ecc_tests[test_name] = runtime
         else:
             other_tests[test_name] = runtime
