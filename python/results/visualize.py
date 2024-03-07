@@ -12,11 +12,13 @@ with open('results.txt', 'r') as file:
         test_name, runtime_str = line.strip().split(': ')
         # Convert runtime to a float and remove the word 'miliseconds'
         runtime = float(runtime_str.split()[0])
-        
+        test_name = test_name.replace('test_', '')
         # Categorize the test based on its name
         if 'interactive' in test_name:
+            test_name = test_name.replace('interactive_', '')
             interactive_tests[test_name] = runtime
         elif 'ecc' in test_name:
+            test_name = test_name.replace('ecc_', '')
             ecc_tests[test_name] = runtime
         else:
             other_tests[test_name] = runtime
@@ -27,6 +29,7 @@ def plot_category(ax, category, title, color):
     ax.set_title(title)
     ax.invert_yaxis()  # Invert axis to have the highest bar at the top
     ax.set_xlabel('Runtime (milliseconds)')
+    ax.grid(True)
 
 # Create figure and axes for subplots
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))  # 1 row, 3 columns
