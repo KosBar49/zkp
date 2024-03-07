@@ -165,4 +165,6 @@ def time_test(request):
     yield
     # After the test has finished, calculate the time taken and print it
     duration = ( time.time() - start_time ) * 1000
-    print(f"\n{request.node.name} took {duration:.2f} miliseconds to complete")
+    with open("../results/results.txt", 'a') as file_:
+        file_.write(f"{request.node.name}: {duration:.2f} miliseconds\n")
+    print(f"\n{request.node.name}: {duration:.2f} miliseconds")

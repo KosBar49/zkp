@@ -5,7 +5,7 @@ from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonIntera
 
 
 class PedersenCommitmentsEqualInteractive(ZeroKnowledgeProtocol):
-    def __init__(self, p=None, x=None, y=None):
+    def __init__(self, p, x=None, y=None):
         self._x = x
         self._y = y
         self.p = p  # Large prime number for modulo operations
@@ -45,7 +45,7 @@ class PedersenCommitmentsEqualInteractive(ZeroKnowledgeProtocol):
 
 class PedersenCommitmentsEqual(ZeroKnowledgeProtocolNonInteractive):
 
-    def __init__(self, x=None, y=None, p=None):
+    def __init__(self, p, x=None, y=None):
         self._x = x
         self._y = y
         self.p = p  # Large prime number for modulo operations
