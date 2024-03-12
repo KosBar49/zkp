@@ -10,11 +10,11 @@ def test_discrete_log_equality_interactive(x, g, h, p, P, q_discrete_log_equalit
     s = client_a.response(c)
     client_b.verify(c, s, t1, t2)
     
-def test_discrete_log_equality(x, g, h, p, P, q_discrete_log_equality):
+def test_discrete_log_equality(x, g, h, p, P, q_discrete_log_equality, hash_function):
 
     client_a = DiscreteLogEquality(g, P, h, q_discrete_log_equality, p, x)
     client_b = DiscreteLogEquality(g, P, h, q_discrete_log_equality, p)
-    
+    DiscreteLogEquality.supported_hash = hash_function
     c, s = client_a.response()
     client_b.verify(c, s)
 

@@ -1,9 +1,8 @@
 import random
-import hashlib
 from typing import Tuple
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
-
+from .zkp_base import Base
 
 class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
     """
@@ -56,7 +55,7 @@ class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
         assert v2 == vH
 
 
-class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive):
+class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive, Base):
     """
     Implementation based on https://asecuritysite.com/zero/dleq3
     """
@@ -85,11 +84,8 @@ class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive):
         self._v = random.randint(0, self._p - 1)
         self._vG = pow(self._g, self._v, self._p)
         self._vH = pow(self._h, self._v, self._p)
-
-        h = hashlib.md5()
-        cha1 = str(self._vG)+str(self._vH)+str(self._g) + str(self._h)
-        h.update(cha1.encode())
-        self._c = int(h.hexdigest(), 16)
+        
+        self._c = self._hash([self._vG, self._vH, self._g, self._h])
 
         self._r = (self._v - self._x * self._c) % (self._p - 1)
         return self._c, self._r
@@ -105,11 +101,8 @@ class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive):
         """
         v1 = (pow(self._g, r, self._p) * pow(self._xG, c, self._p)) % self._p
         v2 = (pow(self._h, r, self._p) * pow(self._xH, c, self._p)) % self._p
-
-        cha1 = str(v1) + str(v2) + str(self._g) + str(self._h)
-        h = hashlib.md5()
-        h.update(cha1.encode())
-        c1 = int(h.hexdigest(), 16)
+        
+        c1 = self._hash([v1, v2, self._g, self._h])
         assert c == c1
 
 

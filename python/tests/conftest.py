@@ -2,6 +2,7 @@ import time
 
 import pytest
 from ..zkps.elliptic_curve import get_curve
+from hashlib import sha512 as hash_f
 
 X = 5
 Y = 7
@@ -20,6 +21,10 @@ CURVE = get_curve('secp256r1')
 G1C, H1C, G2C, H2C = CURVE.get_generators(4)
 XPC = CURVE.scalar_mult(X, G1C)
 YQC = CURVE.scalar_mult(Y, H1C)
+
+@pytest.fixture(scope="session")
+def hash_function():
+    return hash_f
 
 #secret 1
 @pytest.fixture(scope="session")
