@@ -3,6 +3,7 @@ from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonIntera
 
 import random
 import hashlib
+from .zkp_base import Base
 
 
 class PedersenCommitmentInteractive(ZeroKnowledgeProtocol):
@@ -73,7 +74,7 @@ class PedersenCommitmentInteractive(ZeroKnowledgeProtocol):
         return lhs == rhs
 
 
-class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive):
+class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive, Base):
     """
     Non-interactive Pedersen Commitment in a cyclic group of prime order.
     """
@@ -104,11 +105,8 @@ class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive):
 
         # Commitment
         t = (pow(self.g, r1, self.p) * pow(self.h, r2, self.p)) % self.p
-        cha1 = str(self.g) + str(self.h) + str(P) + str(t)
-        hash_ = hashlib.md5()
-        hash_.update(cha1.encode())
-        c = int(hash_.hexdigest(), 16) % self.p
-
+        c = self._hash([self.g, self.h, P, t]) % self.p
+        
         # Responses
         s1 = (r1 + c * self.x) % (self.p - 1)
         s2 = (r2 + c * self.y) % (self.p - 1)
@@ -126,11 +124,7 @@ class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive):
         """
         # Calculate left hand side (LHS) of the verification equation
         lhs = (pow(g, s1, self.p) * pow(h, s2, self.p)) % self.p
-        cha1 = str(g) + str(h) + str(P) + str(t)
-        hash_ = hashlib.md5()
-        hash_.update(cha1.encode())
-        c = int(hash_.hexdigest(), 16) % self.p
-
+        c = self._hash([g, h, P, t]) % self.p
         # Calculate right hand side (RHS) of the verification equation
         rhs = (t * pow(P, c, self.p)) % self.p
 

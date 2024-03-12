@@ -2,6 +2,7 @@ from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 import random
 import hashlib
+from .zkp_base import Base
 
 class PedersenCommitmentsEqualMessagesInteractive(ZeroKnowledgeProtocol):
     def __init__(self, p, g, h, x=None, y=None, z=None):
@@ -43,7 +44,7 @@ class PedersenCommitmentsEqualMessagesInteractive(ZeroKnowledgeProtocol):
 
         assert lhs1 == rhs1 and lhs2 == rhs2
 
-class PederesenCommitmentsEqualMessages(ZeroKnowledgeProtocolNonInteractive):
+class PederesenCommitmentsEqualMessages(ZeroKnowledgeProtocolNonInteractive, Base):
 
     def __init__(self, p, g, h, x = None, y = None, z = None):
         self._p = p
@@ -54,11 +55,6 @@ class PederesenCommitmentsEqualMessages(ZeroKnowledgeProtocolNonInteractive):
             self._y = y
             self._z = z
 
-    def hash_points(self, points):
-        hash_input = ''.join(str(point) for point in points).encode()
-        hash_output = hashlib.sha256(hash_input).hexdigest()
-        return int(hash_output, 16) % self._p
-
     def response(self, P, Q):
         r1 = random.randint(1, self._p - 1)
         r2 = random.randint(1, self._p - 1)
@@ -67,7 +63,7 @@ class PederesenCommitmentsEqualMessages(ZeroKnowledgeProtocolNonInteractive):
         t1 = (pow(self._g, r1, self._p) * pow(self._h, r2, self._p)) % ( self._p )
         t2 = (pow(self._g, r1, self._p) * pow(self._h, r3, self._p)) % ( self._p )
         
-        c = self.hash_points([P, Q, t1, t2])
+        c = self._hash([P, Q, t1, t2]) % self._p
         
         s1 = (r1 + c * self._x) % (self._p - 1 )
         s2 = (r2 + c * self._y) % (self._p - 1 )
@@ -79,7 +75,7 @@ class PederesenCommitmentsEqualMessages(ZeroKnowledgeProtocolNonInteractive):
         (t1, s1) = t1s1
         (t2, s2) = t2s2
         
-        c = self.hash_points([P, Q, t1, t2])
+        c = self._hash([P, Q, t1, t2]) % self._p
         
         lhs1 = (pow(self._g, s1, self._p) * pow(self._h, s2, self._p)) % self._p
         lhs2 = (pow(self._g, s1, self._p) * pow(self._h, s3, self._p)) % self._p

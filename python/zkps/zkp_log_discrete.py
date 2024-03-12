@@ -2,7 +2,7 @@ import random
 import hashlib
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
-
+from .zkp_base import Base
 
 class DiscreteLogInteractive(ZeroKnowledgeProtocol):
 
@@ -50,7 +50,7 @@ class DiscreteLogInteractive(ZeroKnowledgeProtocol):
             pow(self._y, self._challenge) * commitment) % self._p
 
 
-class DiscreteLog(ZeroKnowledgeProtocolNonInteractive):
+class DiscreteLog(ZeroKnowledgeProtocolNonInteractive, Base):
     """
     Implementation based on https://asecuritysite.com/zero/nizkp2
     """
@@ -75,11 +75,7 @@ class DiscreteLog(ZeroKnowledgeProtocolNonInteractive):
         """
         self._v = random.randint(0, self._p - 1)
         t = pow(self._g, self._v, self._p)
-        chal = str(self._g) + str(self._y) + str(t)
-        h = hashlib.md5()
-        h.update(chal.encode())
-
-        self._c = int(h.hexdigest(), 16)
+        self._c = self._hash([self._g, self._y, t])
         return t, (self._v - self._c * self._x) % (self._p - 1)
 
     def verify(self, s, t):
@@ -93,11 +89,8 @@ class DiscreteLog(ZeroKnowledgeProtocolNonInteractive):
             None
         Raises:
             AssertionError: If the signature is invalid.
-        """
-        chal = str(self._g) + str(self._y) + str(t)
-        h = hashlib.md5()
-        h.update(chal.encode())
-        c = int(h.hexdigest(), 16)
+        """        
+        c = self._hash([self._g, self._y, t])
         check = (pow(self._g, s, self._p) * pow(self._y, c, self._p)) % self._p
         assert t == check
 

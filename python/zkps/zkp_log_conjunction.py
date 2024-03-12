@@ -2,7 +2,7 @@ import random
 import hashlib
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
-
+from .zkp_base import Base
 
 class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
 
@@ -71,7 +71,7 @@ class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
         assert lhs1 == rhs1 and lhs2 == rhs2
 
 
-class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive):
+class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive, Base):
 
     def __init__(self, g, h, P, Q, p, x=None, y=None):
         """
@@ -96,12 +96,8 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive):
         t1 = pow(self._g, r1, self._p)
         t2 = pow(self._h, r2, self._p)
 
-        cha1 = str(self._g) + str(self._h) + str(self._P) + \
-            str(self._Q) + str(t1) + str(t2)
-        hash_ = hashlib.md5()
-        hash_.update(cha1.encode())
-        c = int(hash_.hexdigest(), 16) % self._p
-
+        c = self._hash([self._g, self._h, self._P, self._Q, t1, t2]) % self._p
+        
         s1 = (r1 + c * self._x) % (self._p - 1)
         s2 = (r2 + c * self._y) % (self._p - 1)
 
@@ -112,11 +108,8 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive):
         (t1, s1) = t1cs1
         (t2, s2) = t2cs2
 
-        cha1 = str(g) + str(h) + str(P) + str(Q) + str(t1) + str(t2)
-        hash_ = hashlib.md5()
-        hash_.update(cha1.encode())
-        c = int(hash_.hexdigest(), 16) % self._p
-
+        c = self._hash([g, h, P, Q, t1, t2]) % self._p
+        
         lhs1 = pow(g, s1, self._p)
         rhs1 = (t1 * pow(P, c, self._p)) % self._p
 

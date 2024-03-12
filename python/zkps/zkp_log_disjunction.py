@@ -2,7 +2,7 @@ import random
 import hashlib
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
-
+from .zkp_base import Base
 
 class DiscreteLogDisjunctionInteractive(ZeroKnowledgeProtocol):
     def __init__(self, g, h, P, Q, p, x=None):
@@ -89,7 +89,7 @@ class DiscreteLogDisjunctionInteractive(ZeroKnowledgeProtocol):
         assert lhs2 == rhs2 and lhs1 == rhs1
 
 
-class DiscreteLogDisjunction(ZeroKnowledgeProtocolNonInteractive):
+class DiscreteLogDisjunction(ZeroKnowledgeProtocolNonInteractive, Base):
 
     def __init__(self, g, h, P, Q, p, x=None):
         """
@@ -114,12 +114,8 @@ class DiscreteLogDisjunction(ZeroKnowledgeProtocolNonInteractive):
         t1 = pow(self._g, r1, self._p)
         t2 = (pow(self._h, s2, self._p) *
               pow(self._Q, (0 - c2), self._p)) % self._p
-
-        cha1 = str(self._g) + str(self._h) + str(self._P) + \
-            str(self._Q) + str(t1) + str(t2)
-        hash_ = hashlib.md5()
-        hash_.update(cha1.encode())
-        c = int(hash_.hexdigest(), 16) % self._p
+        
+        c = self._hash([self._g, self._h, self._P, self._Q, t1, t2]) % self._p
 
         c1 = (c - c2) % self._p
 
@@ -130,11 +126,8 @@ class DiscreteLogDisjunction(ZeroKnowledgeProtocolNonInteractive):
     def verify(self, g, h, P, Q, t1c1s1, t2c2s2):
         (t1, c1, s1) = t1c1s1
         (t2, c2, s2) = t2c2s2
-
-        cha1 = str(g) + str(h) + str(P) + str(Q) + str(t1) + str(t2)
-        hash_ = hashlib.md5()
-        hash_.update(cha1.encode())
-        c = int(hash_.hexdigest(), 16) % self._p
+        
+        c = self._hash([g, h, P, Q, t1, t2]) % self._p
 
         assert (c == (c1 + c2) % self._p)
 
