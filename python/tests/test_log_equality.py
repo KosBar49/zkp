@@ -1,5 +1,7 @@
+import pytest
 from ..zkps.zkp_log_equality import *
 
+@pytest.mark.interactive
 def test_discrete_log_equality_interactive(x, g, h, p, P, q_discrete_log_equality):
 
     client_a = DiscreteLogEqualityInteractive(g, P, h, q_discrete_log_equality, p, x)
@@ -9,15 +11,20 @@ def test_discrete_log_equality_interactive(x, g, h, p, P, q_discrete_log_equalit
     c = client_b.challenge()
     s = client_a.response(c)
     client_b.verify(c, s, t1, t2)
-    
+
+@pytest.mark.noninteractive
+@pytest.mark.parametrize("hash_function", ["sha1", "md5", "sha256", "sha512"])
 def test_discrete_log_equality(x, g, h, p, P, q_discrete_log_equality, hash_function):
 
     client_a = DiscreteLogEquality(g, P, h, q_discrete_log_equality, p, x)
     client_b = DiscreteLogEquality(g, P, h, q_discrete_log_equality, p)
-    DiscreteLogEquality.supported_hash = hash_function
+    
+    DiscreteLogEquality.supported_hash_name = hash_function
+    
     c, s = client_a.response()
     client_b.verify(c, s)
 
+@pytest.mark.ecc
 def test_discrete_log_equality_ecc(x, g1c, h1c, p_ecc_log_equality, \
     q_ecc_log_equality):
     
