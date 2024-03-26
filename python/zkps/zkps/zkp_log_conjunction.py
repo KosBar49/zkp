@@ -1,5 +1,4 @@
 import random
-import hashlib
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 from .zkp_base import Base
