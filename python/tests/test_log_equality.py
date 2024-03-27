@@ -1,5 +1,5 @@
 import pytest
-from ..zkps.zkp_log_equality import *
+from zkps.zkp_log_equality import *
 
 @pytest.mark.interactive
 def test_discrete_log_equality_interactive(x, g, h, p, P, q_discrete_log_equality):

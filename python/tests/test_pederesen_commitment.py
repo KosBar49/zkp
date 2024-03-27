@@ -1,5 +1,5 @@
 import pytest
-from ..zkps.zkp_pederesen_commitment import *
+from zkps.zkp_pederesen_commitment import *
 
 
 @pytest.mark.interactive

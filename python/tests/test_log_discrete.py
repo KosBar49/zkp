@@ -1,5 +1,5 @@
 import pytest
-from ..zkps.zkp_log_discrete import *
+from zkps.zkp_log_discrete import *
 
 @pytest.mark.interactive
 def test_discrete_log_interactive(x, g, p, P):

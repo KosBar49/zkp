@@ -1,5 +1,5 @@
 import pytest
-from ..zkps.zkp_log_conjunction import *
+from zkps.zkp_log_conjunction import *
 
 @pytest.mark.interactive
 def test_discrete_log_interactive_conjunction(x, y, g, h, p, P, Q):

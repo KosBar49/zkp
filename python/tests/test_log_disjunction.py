@@ -1,5 +1,5 @@
 import pytest
-from ..zkps.zkp_log_disjunction import *
+from zkps.zkp_log_disjunction import *
 
 @pytest.mark.interactive
 def test_discrete_log_disjuntion_interactive(x, g, h, p, P, Q):

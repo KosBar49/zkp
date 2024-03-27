@@ -1,5 +1,5 @@
 import pytest
-from ..zkps.zkp_pederesen_commitments import *
+from zkps.zkp_pederesen_commitments import *
 
 @pytest.mark.interactive
 def test_pederesen_commitment_eq_msg_rnd_interactive(x, y, p, g, h, g2, h2, p_test_pederesnen_commitment_eq_message_randomness, \
