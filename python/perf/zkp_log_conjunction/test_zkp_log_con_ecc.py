@@ -2,14 +2,14 @@ import time
 import matplotlib.pyplot as plt
 import random
 from sympy import primerange
-from zkps.zkp_log_disjunction import DiscreteLogDisjunctionEcc
+from zkps.zkp_log_conjunction import DiscreteLogConjunctionEcc
 from statistics import median
 from zkps.elliptic_curve import get_curve
 
 curve = get_curve('secp256r1')
 g1, h1, g2, h2 = curve.get_generators(4)
 
-def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogDisjunctionEcc):
+def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogConjunctionEcc):
     x_ = []
     y_r = []
     y_v = []
@@ -33,15 +33,15 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogDi
             P = curve.scalar_mult(x, g1)
             Q = curve.scalar_mult(y, h1)
             
-            client_a = zkp_class(x)
+            client_a = zkp_class(x, y)
             client_b = zkp_class()
             
             s_r = time.time()
-            t1c1s1, t2c2s2 = client_a.response(g1, h1, P, Q)
+            (t1, s1), (t2, s2) = client_a.response(g1, h1, P, Q)
             e_r = time.time()
             
             s_v = time.time()
-            client_b.verify(g1, h1, P, Q, t1c1s1, t2c2s2)
+            client_b.verify(g1, h1, P, Q, (t1, s1), (t2, s2))
             e_v = time.time()
 
             times_r.append(e_r - s_r)
@@ -56,9 +56,9 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogDi
         
     plt.plot(x_, y_v, marker='o', label = 'verify')
     plt.plot(x_, y_r, marker='o', label = 'response')
-    plt.title(f'Average Performance of {zkp_class.__name__} with Increasing Parameter Sizes')
+    plt.title(f'Median of execution time for {zkp_class.__name__}')
     plt.xlabel('Bit length of p')
-    plt.ylabel('Average execution time (seconds)')
+    plt.ylabel('Median execution time (seconds)')
     plt.grid(True)
     plt.legend()
     plt.savefig(f'images/{zkp_class.__name__}_{str(bits)}bits.png')

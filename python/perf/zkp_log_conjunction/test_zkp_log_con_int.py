@@ -2,10 +2,10 @@ import time
 import matplotlib.pyplot as plt
 import random
 from sympy import primerange
-from zkps.zkp_log_disjunction import DiscreteLogDisjunction
+from zkps.zkp_log_conjunction import DiscreteLogConjunctionInteractive
 from statistics import median
 
-def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogDisjunction):
+def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogConjunctionInteractive):
     x_ = []
     y_r = []
     y_v = []
@@ -25,18 +25,22 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogDi
             g = 2  # Simple generator for demonstration; in real scenarios, check its properties.
             h = 3  
             x = random.randint(1, p - 2) # Private key
+            y = random.randint(1, p - 2) # Private key
             P = pow(g, x, p)
-            Q = pow(h, x, p)
-            client_a = zkp_class(g, h, P, Q, p, x)
+            Q = pow(h, y, p)
+            client_a = zkp_class(g, h, P, Q, p, x, y)
             
             client_b = zkp_class(g, h, P, Q, p)
             
+            t1, t2 = client_a.commitment()
+            c = client_a.challenge()
+            
             s_r = time.time()
-            t1c1s1, t2c2s2 = client_a.response()
+            s1, s2 = client_a.response()
             e_r = time.time()
             
             s_v = time.time()
-            client_b.verify(g, h, P, Q, t1c1s1, t2c2s2)
+            client_b.verify(t1, t2, s1, s2, c)
             e_v = time.time()
 
             times_r.append(e_r - s_r)
@@ -53,7 +57,7 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogDi
 
     plt.plot(x_, y_r, marker='o', label = 'response')
     plt.plot(x_, y_v, marker='o', label = 'verify')
-    plt.title(f'Median Perf. of {zkp_class.__name__} with Inc. Parameter Sizes')
+    plt.title(f'Median of execution time for {zkp_class.__name__}')
     plt.xlabel('Bit length of p')
     plt.ylabel('Median execution time (seconds)')
     plt.grid(True)
