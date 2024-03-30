@@ -16,8 +16,8 @@ def test_discrete_log_equality_interactive(x, g, h, p, P, q_discrete_log_equalit
 @pytest.mark.parametrize("hash_function", ["sha1", "md5", "sha256", "sha512"])
 def test_discrete_log_equality(x, g, h, p, P, q_discrete_log_equality, hash_function):
 
-    client_a = DiscreteLogEquality(g, P, h, q_discrete_log_equality, p, x)
-    client_b = DiscreteLogEquality(g, P, h, q_discrete_log_equality, p)
+    client_a = DiscreteLogEquality(g, h, P, q_discrete_log_equality, p, x)
+    client_b = DiscreteLogEquality(g, h, P, q_discrete_log_equality, p)
     
     DiscreteLogEquality.supported_hash_name = hash_function
     

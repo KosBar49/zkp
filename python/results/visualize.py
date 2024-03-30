@@ -44,5 +44,5 @@ for filename in glob.glob('results_*.txt'):
 
     # Improve layout to prevent overlap
     plt.tight_layout()
-    name = filename.replace('results_', '')+'.png'
+    name = filename.replace('results_', '').replace('.txt','')+'.png'
     plt.savefig(name)

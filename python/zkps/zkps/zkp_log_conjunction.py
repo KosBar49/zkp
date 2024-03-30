@@ -2,7 +2,19 @@ import random
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 from .zkp_base import Base
+from dataclasses import dataclass, field
 
+@dataclass
+class Parameters:
+    x: int= 5
+    y: int = 7
+    g: int  = 2
+    h: int = 3
+    p: int = 1019
+    P: int = pow(g, x, p)
+    Q: int = pow(h, y, p)
+    
+    
 class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
 
     def __init__(self, g, h, P, Q, p, a=None, b=None):
@@ -102,18 +114,18 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive, Base):
 
         return (t1, s1), (t2, s2)
 
-    def verify(self, g, h, P, Q, t1cs1, t2cs2):
+    def verify(self, t1cs1, t2cs2):
 
         (t1, s1) = t1cs1
         (t2, s2) = t2cs2
 
-        c = self._hash([g, h, P, Q, t1, t2]) % self._p
+        c = self._hash([self._g, self._h, self._P, self._Q, t1, t2]) % self._p
         
-        lhs1 = pow(g, s1, self._p)
-        rhs1 = (t1 * pow(P, c, self._p)) % self._p
+        lhs1 = pow(self._g, s1, self._p)
+        rhs1 = (t1 * pow(self._P, c, self._p)) % self._p
 
-        lhs2 = pow(h, s2, self._p)
-        rhs2 = (t2 * pow(Q, c, self._p)) % self._p
+        lhs2 = pow(self._h, s2, self._p)
+        rhs2 = (t2 * pow(self._Q, c, self._p)) % self._p
 
         assert lhs1 == rhs1
         assert lhs2 == rhs2

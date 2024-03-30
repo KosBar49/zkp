@@ -2,10 +2,10 @@ import time
 import matplotlib.pyplot as plt
 import random
 from sympy import primerange
-from zkps.zkp_log_conjunction import DiscreteLogConjunction
+from zkps.zkp_log_equality import DiscreteLogEquality as zkp_class
 from statistics import median
 
-def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogConjunction):
+def test_performance(max_bits=20, step=2, simulations=5, zkp_class=zkp_class):
     x_ = []
     y_r = []
     y_v = []
@@ -22,23 +22,23 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogCo
             if not primes:
                 continue
             p = random.choice(primes)
-            g = 2  # Simple generator for demonstration; in real scenarios, check its properties.
+            g = 2
             h = 3
             x = random.randint(1, p - 2)  # Private key
             y = random.randint(1, p - 2)  # Private key
             
             P = pow(g, x, p)
-            Q = pow(h, y, p)
+            Q = pow(h, x, p)
             
-            client_a = zkp_class(g, h, P, Q, p, x, y)
+            client_a = zkp_class(g, h, P, Q, p, x)
             client_b = zkp_class(g, h, P, Q, p)
             
             s_r = time.time()
-            (t1, s1), (t2, s2) = client_a.response()
+            c, s = client_a.response()
             e_r = time.time()
             
             s_v = time.time()
-            client_b.verify((t1, s1), (t2, s2))
+            client_b.verify(c, s)
             e_v = time.time()
 
             times_r.append(e_r - s_r)

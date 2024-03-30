@@ -60,7 +60,7 @@ class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive, Base):
     Implementation based on https://asecuritysite.com/zero/dleq3
     """
 
-    def __init__(self, g, xG, h, xH, p, x=None):
+    def __init__(self, g, h, P, Q, p, x=None):
         """
         :param g: generator 1
         :param xG: public key 1
@@ -69,11 +69,11 @@ class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive, Base):
         :param p: modulo
         :param x: secret
         """
-        self._p = p
         self._g = g
-        self._xG = xG
+        self._P = P
         self._h = h
-        self._xH = xH
+        self._Q = Q
+        self._p = p
         self._x = x
 
     def response(self):
@@ -99,8 +99,8 @@ class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive, Base):
         Returns:
             None
         """
-        v1 = (pow(self._g, r, self._p) * pow(self._xG, c, self._p)) % self._p
-        v2 = (pow(self._h, r, self._p) * pow(self._xH, c, self._p)) % self._p
+        v1 = (pow(self._g, r, self._p) * pow(self._P, c, self._p)) % self._p
+        v2 = (pow(self._h, r, self._p) * pow(self._Q, c, self._p)) % self._p
         
         c1 = self._hash([v1, v2, self._g, self._h])
         assert c == c1

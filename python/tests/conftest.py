@@ -1,7 +1,7 @@
 import time
 
 import pytest
-from ..zkps.elliptic_curve import get_curve
+from zkps.elliptic_curve import get_curve
 from hashlib import sha512 as hash_f
 
 X = 5
@@ -171,6 +171,6 @@ def time_test(request):
     yield
     # After the test has finished, calculate the time taken and print it
     duration = ( time.time() - start_time ) * 1000
-    with open(f"../results/results_{hash_f.__name__}.txt", 'a') as file_:
+    with open(f"../results/times/results_{hash_f.__name__}.txt", 'a') as file_:
         file_.write(f"{request.node.name}: {duration:.2f} miliseconds\n")
     print(f"\n{request.node.name}: {duration:.2f} miliseconds")

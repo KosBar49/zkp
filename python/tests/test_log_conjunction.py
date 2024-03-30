@@ -22,7 +22,7 @@ def test_discrete_log_conjunction(x, y, g, h, p, P, Q, hash_function):
     DiscreteLogConjunction.supported_hash_name = hash_function
     
     (t1, s1), (t2, s2) = client_a.response()
-    client_b.verify(g, h, P, Q, (t1, s1), (t2, s2))
+    client_b.verify((t1, s1), (t2, s2))
 
 @pytest.mark.ecc
 def test_discrete_log_conjunction_ecc(x, y, g1c, h1c, PC, QC):
