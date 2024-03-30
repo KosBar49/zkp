@@ -2,10 +2,10 @@ import time
 import matplotlib.pyplot as plt
 import random
 from sympy import primerange
-from zkps.zkp_log_conjunction import DiscreteLogConjunctionInteractive
+from zkps.zkp_log_equality import DiscreteLogEqualityInteractive as zkp_class
 from statistics import median
 
-def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogConjunctionInteractive):
+def test_performance(max_bits=20, step=2, simulations=5, zkp_class=zkp_class):
     x_ = []
     y_r = []
     y_v = []
@@ -27,20 +27,21 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogCo
             x = random.randint(1, p - 2) # Private key
             y = random.randint(1, p - 2) # Private key
             P = pow(g, x, p)
-            Q = pow(h, y, p)
-            client_a = zkp_class(g, h, P, Q, p, x, y)
+            Q = pow(h, x, p)
+            
+            client_a = zkp_class(g, h, P, Q, p, x)
             
             client_b = zkp_class(g, h, P, Q, p)
             
-            t1, t2 = client_a.commitment()
+            t1, t2 = client_a.commitments()
             c = client_a.challenge()
             
             s_r = time.time()
-            s1, s2 = client_a.response()
+            s = client_a.response(c)
             e_r = time.time()
             
             s_v = time.time()
-            client_b.verify(t1, t2, s1, s2, c)
+            client_b.verify(c, s, t1, t2)
             e_v = time.time()
 
             times_r.append(e_r - s_r)
@@ -57,7 +58,7 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogCo
 
     plt.plot(x_, y_r, marker='o', label = 'response')
     plt.plot(x_, y_v, marker='o', label = 'verify')
-    plt.title(f'Median of execution time for {zkp_class.__name__}')
+    plt.title(f'Median of the time execution for {zkp_class.__name__}')
     plt.xlabel('Bit length of p')
     plt.ylabel('Median execution time (seconds)')
     plt.grid(True)

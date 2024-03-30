@@ -23,6 +23,7 @@ class DiscreteLogDisjunctionInteractive(ZeroKnowledgeProtocol):
         self._Q = Q
         self._p = p
         self._x = x
+        self._random = random.SystemRandom()
 
     def challenge(self):
         """
@@ -30,7 +31,7 @@ class DiscreteLogDisjunctionInteractive(ZeroKnowledgeProtocol):
 
         :return: A random challenge c.
         """
-        self._c = random.randint(1, self._p - 1)
+        self._c = self._random.randint(1, self._p - 1)
         return self._c
 
     def commitment(self):
@@ -39,9 +40,9 @@ class DiscreteLogDisjunctionInteractive(ZeroKnowledgeProtocol):
 
         This function does not take any parameters and returns a tuple of two integers representing the commitment values.
         """
-        self._r1 = random.randint(0, self._p - 1)
-        self._s2 = random.randint(0, self._p - 1)
-        self._c2 = random.randint(0, self._p - 1)
+        self._r1 = self._random.randint(0, self._p - 1)
+        self._s2 = self._random.randint(0, self._p - 1)
+        self._c2 = self._random.randint(0, self._p - 1)
         t1 = pow(self._g, self._r1, self._p)
 
         t2 = (pow(self._h, self._s2, self._p) * pow(self._Q, - self._c2, self._p)) % self._p
@@ -105,11 +106,12 @@ class DiscreteLogDisjunction(ZeroKnowledgeProtocolNonInteractive, Base):
         self._Q = Q
         self._p = p
         self._x = x
+        self._random = random.SystemRandom()
 
     def response(self):
-        r1 = random.randint(0, self._p - 1)
-        c2 = random.randint(0, self._p - 1)
-        s2 = random.randint(0, self._p - 1)
+        r1 = self._random.randint(0, self._p - 1)
+        c2 = self._random.randint(0, self._p - 1)
+        s2 = self._random.randint(0, self._p - 1)
 
         t1 = pow(self._g, r1, self._p)
         t2 = (pow(self._h, s2, self._p) *

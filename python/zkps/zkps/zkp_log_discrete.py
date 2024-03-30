@@ -17,12 +17,13 @@ class DiscreteLogInteractive(ZeroKnowledgeProtocol):
         self._y = y
         self._p = p
         self._x = x
+        self._random = random.SystemRandom()
 
     def commitment(self):
         """
         :return: commitment (g^r mod p)
         """
-        self._r = random.randint(0, self._p - 1)
+        self._r = self._random.randint(0, self._p - 1)
         commitment = pow(self._g, self._r, self._p)
         return commitment
 
@@ -30,7 +31,7 @@ class DiscreteLogInteractive(ZeroKnowledgeProtocol):
         """        
         :return: challenge (x * c + r mod p - 1)
         """
-        self._challenge = random.randint(1, self._p - 1)
+        self._challenge = self._random.randint(1, self._p - 1)
         return self._challenge
 
     def response(self, challenge):
@@ -73,7 +74,7 @@ class DiscreteLog(ZeroKnowledgeProtocolNonInteractive, Base):
         Returns:
             int: The calculated response value.
         """
-        self._v = random.randint(0, self._p - 1)
+        self._v = self._random.randint(0, self._p - 1)
         t = pow(self._g, self._v, self._p)
         self._c = self._hash([self._g, self._y, t])
         return t, (self._v - self._c * self._x) % (self._p - 1)

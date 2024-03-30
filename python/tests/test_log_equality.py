@@ -4,8 +4,8 @@ from zkps.zkp_log_equality import *
 @pytest.mark.interactive
 def test_discrete_log_equality_interactive(x, g, h, p, P, q_discrete_log_equality):
 
-    client_a = DiscreteLogEqualityInteractive(g, P, h, q_discrete_log_equality, p, x)
-    client_b = DiscreteLogEqualityInteractive(g, P, h, q_discrete_log_equality, p)
+    client_a = DiscreteLogEqualityInteractive(g, h, P, q_discrete_log_equality, p, x)
+    client_b = DiscreteLogEqualityInteractive(g, h, P, q_discrete_log_equality, p)
     
     t1, t2 = client_a.commitments()
     c = client_b.challenge()

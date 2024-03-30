@@ -32,15 +32,16 @@ class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
         self._a = a
         self._b = b
         self._p = p
+        self._random = random.SystemRandom()
 
     def commitment(self):
         """
         Generates commitments by the prover.
         :return: Tuple of commitments (g^r1, h^r2).
         """
-        self._r1 = random.randint(
+        self._r1 = self._random.randint(
             0, self._p - 1) if self._p else random.randint(0, 2**128)
-        self._r2 = random.randint(
+        self._r2 = self._random.randint(
             0, self._p - 1) if self._p else random.randint(0, 2**128)
         commitment1 = pow(self._g, self._r1, self._p) if self._p else pow(
             self._g, self._r1)
@@ -101,8 +102,8 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive, Base):
         self._y = y
 
     def response(self):
-        r1 = random.randint(0, self._p - 1)
-        r2 = random.randint(0, self._p - 1)
+        r1 = self._random.randint(0, self._p - 1)
+        r2 = self._random.randint(0, self._p - 1)
 
         t1 = pow(self._g, r1, self._p)
         t2 = pow(self._h, r2, self._p)

@@ -37,11 +37,11 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogDi
             client_b = zkp_class()
             
             s_r = time.time()
-            t1c1s1, t2c2s2 = client_a.response(g1, h1, P, Q)
+            (t1, t2, s) = client_a.response(g1, h1, P, Q)
             e_r = time.time()
             
             s_v = time.time()
-            client_b.verify(g1, h1, P, Q, t1c1s1, t2c2s2)
+            client_b.verify(g1c, h1c, P, Q, t1, t2, s)
             e_v = time.time()
 
             times_r.append(e_r - s_r)
@@ -56,7 +56,7 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogDi
         
     plt.plot(x_, y_v, marker='o', label = 'verify')
     plt.plot(x_, y_r, marker='o', label = 'response')
-    plt.title(f'Medium Perf. of {zkp_class.__name__} with Inc. Parameter Sizes')
+    plt.title(f'Median of the time execution for {zkp_class.__name__}')
     plt.xlabel('Bit length of p')
     plt.ylabel('Medium execution time (seconds)')
     plt.grid(True)

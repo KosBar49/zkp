@@ -51,7 +51,7 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=DiscreteLogIn
 
     plt.plot(x_, y_r, marker='o', label = 'response')
     plt.plot(x_, y_v, marker='o', label = 'verify')
-    plt.title(f'Median Perf. of {zkp_class.__name__} with Inc. Parameter Sizes')
+    plt.title(f'Median of the time execution for {zkp_class.__name__}')
     plt.xlabel('Bit length of p')
     plt.ylabel('Median execution time (seconds)')
     plt.grid(True)

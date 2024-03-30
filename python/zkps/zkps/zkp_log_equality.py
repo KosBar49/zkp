@@ -9,7 +9,7 @@ class DiscreteLogEqualityInteractive(ZeroKnowledgeProtocol):
     Implementation of a Zero-Knowledge Proof protocol for discrete logarithm equality.
     """
 
-    def __init__(self, g: int, xG: int, h: int, xH: int, p: int, x: int = None):
+    def __init__(self, g: int, h: int,xG: int, xH: int, p: int, x: int = None):
         self._p = p
         self._g = g
         self._xG = xG
@@ -81,7 +81,7 @@ class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive, Base):
         Calculates the response value based on the current object state.
         :return: The calculated response value.
         """
-        self._v = random.randint(0, self._p - 1)
+        self._v = self._random.randint(0, self._p - 1)
         self._vG = pow(self._g, self._v, self._p)
         self._vH = pow(self._h, self._v, self._p)
         

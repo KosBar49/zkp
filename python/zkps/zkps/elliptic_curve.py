@@ -17,6 +17,7 @@ class EllipticCurve(ecc.Curve):
         self.p = p
         self.n = n
         self._hash_function = hash_function
+        self._random = random.SystemRandom()
 
     # def __str__(self):
     #     return f"Curve: {self._type}\nParameters:\n a={self.a}\n b={self.b}\n G={self.G}\n p={self.p}\n n={self.n}"
@@ -26,7 +27,7 @@ class EllipticCurve(ecc.Curve):
         gs = []
         G = self.g
         for _ in range(n):
-            s = random.randint(0, self.n-1)
+            s = self._random.randint(0, self.n-1)
             gs.append(self.power(G, s))
         return gs
 
@@ -44,7 +45,7 @@ class EllipticCurve(ecc.Curve):
         return self.hash_list([str(point).encode() for point in points])
 
     def get_random(self):
-        return random.randint(0, self.n - 1)
+        return self._random.randint(0, self.n - 1)
 
     def inverse_mod(self, k, p):
         """Returns the inverse of k modulo p.

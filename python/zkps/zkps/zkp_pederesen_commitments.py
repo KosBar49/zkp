@@ -9,6 +9,7 @@ class PedersenCommitmentsEqualInteractive(ZeroKnowledgeProtocol):
         self._x = x
         self._y = y
         self.p = p  # Large prime number for modulo operations
+        self._random = random.SystemRandom()
     
     def _mod_exp(self, base, exponent):
         """Performs modular exponentiation."""
@@ -16,13 +17,13 @@ class PedersenCommitmentsEqualInteractive(ZeroKnowledgeProtocol):
 
     def challenge(self):
         """Verifier generates and sends a random challenge to the prover."""
-        self._c = random.randint(1, self.p - 1)
+        self._c = self._random.randint(1, self.p - 1)
         return self._c
 
     def response(self, g1, h1, g2, h2, c):
         """Prover computes the response to the challenge."""
-        r1 = random.randint(1, self.p - 1)
-        r2 = random.randint(1, self.p - 1)
+        r1 = self._random.randint(1, self.p - 1)
+        r2 = self._random.randint(1, self.p - 1)
         
         t1 = (self._mod_exp(g1, r1) * self._mod_exp(h1, r2)) % self.p
         t2 = (self._mod_exp(g2, r1) * self._mod_exp(h2, r2)) % self.p
@@ -56,8 +57,8 @@ class PedersenCommitmentsEqual(ZeroKnowledgeProtocolNonInteractive, Base):
     
     def response(self, g1, h1, g2, h2, P, Q):
         
-        r1 = random.randint(1, self.p - 1)
-        r2 = random.randint(1, self.p - 1)
+        r1 = self._random.randint(1, self.p - 1)
+        r2 = self._random.randint(1, self.p - 1)
         
         t1 = (self._mod_exp(g1, r1) * self._mod_exp(h1, r2)) % self.p 
         t2 = (self._mod_exp(g2, r1) * self._mod_exp(h2, r2)) % self.p
