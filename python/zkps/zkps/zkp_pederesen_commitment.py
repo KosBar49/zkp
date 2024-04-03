@@ -11,7 +11,7 @@ class PedersenCommitmentInteractive(ZeroKnowledgeProtocol):
     Interactive Pedersen Commitment in a cyclic group of prime order.
     """
 
-    def __init__(self, p: int, g: int, h: int, x: int = None, y: int = None) -> None:
+    def __init__(self, g: int, h: int, p: int, x: int = None, y: int = None) -> None:
         """
         Initialize the commitment scheme with public parameters and optionally secret values.
         :param p: The prime order of the cyclic group.
@@ -20,9 +20,9 @@ class PedersenCommitmentInteractive(ZeroKnowledgeProtocol):
         :param x: The secret value associated with g.
         :param y: The secret value associated with h.
         """
-        self.p = p
         self.g = g
         self.h = h
+        self.p = p
         self.x = x
         self.y = y
         self._random = random.SystemRandom()
@@ -32,8 +32,8 @@ class PedersenCommitmentInteractive(ZeroKnowledgeProtocol):
         Generate a commitment.
         :return: The commitment value t.
         """
-        self.r1 = random.randint(1, self.p - 1)
-        self.r2 = random.randint(1, self.p - 1)
+        self.r1 = self._random.randint(1, self.p - 1)
+        self.r2 = self._random.randint(1, self.p - 1)
         self.t = (pow(self.g, self.r1, self.p) *
                   pow(self.h, self.r2, self.p)) % self.p
         return self.t
@@ -79,7 +79,7 @@ class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive, Base):
     Non-interactive Pedersen Commitment in a cyclic group of prime order.
     """
 
-    def __init__(self, p: int, g: int, h: int, x: int = None, y: int = None) -> None:
+    def __init__(self, g: int, h: int, p: int, x: int = None, y: int = None) -> None:
         """
         Initialize the commitment scheme with public parameters and optionally secret values.
         :param p: The prime order of the cyclic group.
@@ -88,11 +88,12 @@ class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive, Base):
         :param x: The secret value associated with g.
         :param y: The secret value associated with h.
         """
-        self.p = p
         self.g = g
         self.h = h
         self.x = x
         self.y = y
+        self.p = p
+        self._random = random.SystemRandom()
 
     def response(self, P: int) -> tuple:
         """
@@ -100,8 +101,8 @@ class PedersenCommitment(ZeroKnowledgeProtocolNonInteractive, Base):
         :param P: The public point (or value) associated with the secrets x and y.
         :return: A tuple of the commitment (t), and responses (s1, s2).
         """
-        r1 = random.randint(1, self.p - 1)
-        r2 = random.randint(1, self.p - 1)
+        r1 = self._random.randint(1, self.p - 1)
+        r2 = self._random.randint(1, self.p - 1)
 
         # Commitment
         t = (pow(self.g, r1, self.p) * pow(self.h, r2, self.p)) % self.p

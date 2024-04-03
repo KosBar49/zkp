@@ -5,8 +5,8 @@ from zkps.zkp_pederesen_commitment import *
 @pytest.mark.interactive
 def test_pedersen_commitment_interactive(x, y, g, h, p):
     
-    client_a = PedersenCommitmentInteractive(p, g, h, x, y)
-    client_b = PedersenCommitmentInteractive(p, g, h)
+    client_a = PedersenCommitmentInteractive(g, h, p, x, y)
+    client_b = PedersenCommitmentInteractive(g, h, p)
 
     t = client_a.commit()
     c = client_b.challenge()
@@ -17,8 +17,8 @@ def test_pedersen_commitment_interactive(x, y, g, h, p):
 @pytest.mark.parametrize("hash_function", ["sha1", "md5", "sha256", "sha512"])
 def test_pedersen_commitment(x, y, g, h, p, p_pederesen_commitment, hash_function):
      
-    client_a = PedersenCommitment(p, g, h, x, y)
-    client_b = PedersenCommitment(p, g, h)
+    client_a = PedersenCommitment(g, h, p, x, y)
+    client_b = PedersenCommitment(g, h, p)
     
     PedersenCommitment.supported_hash_name = hash_function
     

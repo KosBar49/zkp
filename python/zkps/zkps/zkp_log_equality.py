@@ -75,6 +75,7 @@ class DiscreteLogEquality(ZeroKnowledgeProtocolNonInteractive, Base):
         self._Q = Q
         self._p = p
         self._x = x
+        self._random = random.SystemRandom()
 
     def response(self):
         """

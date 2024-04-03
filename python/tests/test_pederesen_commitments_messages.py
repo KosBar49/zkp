@@ -30,9 +30,9 @@ def test_pederesen_commitments_ecc(x, y, z, g1c, h1c, g2c, h2c, p_ecc_pederesen_
     q_ecc_pederesen_commitments_messages):
 
     client_a = PederesenCommitmentsEqualMessagesEcc(x, y, z)
+    client_b = PederesenCommitmentsEqualMessagesEcc()
     
     (t1, s1), (t2, s2), s3 = client_a.response(g1c, h1c, g2c, h2c, \
         p_ecc_pederesen_commitments_messages, q_ecc_pederesen_commitments_messages)
-    client_b = PederesenCommitmentsEqualMessagesEcc()
     client_b.verify(g1c, h1c, g2c, h2c, \
         p_ecc_pederesen_commitments_messages, q_ecc_pederesen_commitments_messages, (t1, s1), (t2, s2), s3)

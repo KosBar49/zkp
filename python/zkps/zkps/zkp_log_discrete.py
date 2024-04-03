@@ -67,6 +67,7 @@ class DiscreteLog(ZeroKnowledgeProtocolNonInteractive, Base):
         self._p = p
         self._y = y
         self._x = x
+        self._random = random.SystemRandom()
 
     def response(self):
         """

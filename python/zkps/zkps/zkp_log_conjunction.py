@@ -2,18 +2,7 @@ import random
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 from .zkp_base import Base
-from dataclasses import dataclass, field
 
-@dataclass
-class Parameters:
-    x: int= 5
-    y: int = 7
-    g: int  = 2
-    h: int = 3
-    p: int = 1019
-    P: int = pow(g, x, p)
-    Q: int = pow(h, y, p)
-    
     
 class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
 
@@ -40,9 +29,9 @@ class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
         :return: Tuple of commitments (g^r1, h^r2).
         """
         self._r1 = self._random.randint(
-            0, self._p - 1) if self._p else random.randint(0, 2**128)
+            0, self._p - 1)
         self._r2 = self._random.randint(
-            0, self._p - 1) if self._p else random.randint(0, 2**128)
+            0, self._p - 1)
         commitment1 = pow(self._g, self._r1, self._p) if self._p else pow(
             self._g, self._r1)
         commitment2 = pow(self._h, self._r2, self._p) if self._p else pow(
@@ -54,8 +43,8 @@ class DiscreteLogConjunctionInteractive(ZeroKnowledgeProtocol):
         Generates a challenge by the verifier.
         :return: Challenge (random integer).
         """
-        self._challenge = random.randint(
-            1, self._p - 1) if self._p else random.randint(1, 2**128)
+        self._challenge = self._random.randint(
+            1, self._p - 1)
         return self._challenge
 
     def response(self):
@@ -100,6 +89,7 @@ class DiscreteLogConjunction(ZeroKnowledgeProtocolNonInteractive, Base):
         self._p = p
         self._x = x
         self._y = y
+        self._random = random.SystemRandom()
 
     def response(self):
         r1 = self._random.randint(0, self._p - 1)

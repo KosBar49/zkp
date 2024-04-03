@@ -19,11 +19,14 @@ class PedersenCommitmentsEqualInteractive(ZeroKnowledgeProtocol):
         """Verifier generates and sends a random challenge to the prover."""
         self._c = self._random.randint(1, self.p - 1)
         return self._c
+    
+    def set_challange(self, c):
+        self._c = c 
 
     def response(self, g1, h1, g2, h2, c):
         """Prover computes the response to the challenge."""
-        r1 = self._random.randint(1, self.p - 1)
-        r2 = self._random.randint(1, self.p - 1)
+        r1 = self._random.randint(1, self.p - 2)
+        r2 = self._random.randint(1, self.p - 2)
         
         t1 = (self._mod_exp(g1, r1) * self._mod_exp(h1, r2)) % self.p
         t2 = (self._mod_exp(g2, r1) * self._mod_exp(h2, r2)) % self.p
@@ -39,8 +42,10 @@ class PedersenCommitmentsEqualInteractive(ZeroKnowledgeProtocol):
         """Verifier checks the prover's response against the given challenge."""
         lhs1 = (self._mod_exp(g1, s1) * self._mod_exp(h1, s2)) % self.p
         lhs2 = (self._mod_exp(g2, s1) * self._mod_exp(h2, s2)) % self.p
+        
         rhs1 = (t1 * self._mod_exp(P, self._c)) % self.p
         rhs2 = (t2 * self._mod_exp(Q, self._c)) % self.p
+                                                   
         assert lhs1 == rhs1 
         assert lhs2 == rhs2
 
@@ -57,8 +62,8 @@ class PedersenCommitmentsEqual(ZeroKnowledgeProtocolNonInteractive, Base):
     
     def response(self, g1, h1, g2, h2, P, Q):
         
-        r1 = self._random.randint(1, self.p - 1)
-        r2 = self._random.randint(1, self.p - 1)
+        r1 = random.randint(1, self.p - 1)
+        r2 = random.randint(1, self.p - 1)
         
         t1 = (self._mod_exp(g1, r1) * self._mod_exp(h1, r2)) % self.p 
         t2 = (self._mod_exp(g2, r1) * self._mod_exp(h2, r2)) % self.p
