@@ -1,4 +1,4 @@
-| Description                                               | Interactive                                | ZKP ECC                  |
+| ZKP                                               | ZKP Interactive                                | ZKP ECC                  |
 |-----------------------------------------------------------|--------------------------------------------|--------------------------|
 | ![OpenAI](zkp_log_discrete/images/DiscreteLog_20bits.png) | ![OpenAI](zkp_log_discrete/images/DiscreteLogInteractive_20bits.png)  | ![OpenAI](zkp_log_discrete/images/DiscreteLogEcc_20bits.png) |
 | ![OpenAI](zkp_log_disjunction/images/DiscreteLogDisjunction_20bits.png)   | ![OpenAI](zkp_log_disjunction/images/DiscreteLogDisjunctionInteractive_20bits.png)  | ![OpenAI](zkp_log_disjunction/images/DiscreteLogDisjunctionEcc_20bits.png) |
