@@ -71,4 +71,4 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=zkp_class):
 
 
 if __name__ == "__main__":
-    test_performance(max_bits=20, step=1, simulations=15)
+    test_performance(max_bits=20, step=1, simulations=15) # issues here

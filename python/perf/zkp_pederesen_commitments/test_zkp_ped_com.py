@@ -18,16 +18,21 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=zkp_class):
         # Run the protocol N=simulations times
         for i in range(simulations):
             print(f"Running simulation {i+1}/{simulations} for {bits} bits")
-            primes = list(primerange(2**(bits - 1), 2**bits))
-            if not primes:
-                continue
+            
+            primes = list(primerange(2**(bits - 2), 2**(bits - 1)))
+
             p = random.choice(primes)
-            g = 2
-            h = 3
-            g2 = 5 
-            h2 = 7
-            x = random.randint(1, p - 2)  # Private key
-            y = random.randint(1, p - 2)  # Private key
+            
+            primes = list(primerange(2**(bits - 1), 2**(bits)))
+
+            g = random.choice(primes)
+            h = random.choice(primes)
+            g2 = random.choice(primes)
+            h2 = random.choice(primes)
+            x = random.randint(1, p - 1)  
+            y = random.randint(1, p - 1)
+            
+            print(f"p={p}, g={g}, h={h}. g2={g2}, h2={h2}, x={x}, y={y}")
             
             P = ( pow(g, x, p) * pow(h, y, p) ) % p
             Q = ( pow(g2, x, p) * pow(h2, y, p) ) % p
@@ -62,4 +67,4 @@ def test_performance(max_bits=20, step=2, simulations=5, zkp_class=zkp_class):
 
 
 if __name__ == "__main__":
-    test_performance(max_bits=20, step=1, simulations=10)
+    test_performance(max_bits=20, step=1, simulations=100)

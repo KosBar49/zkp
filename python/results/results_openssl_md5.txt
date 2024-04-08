@@ -1,7 +1,0 @@
-test_discrete_log_conjunction_ecc: 136.27 miliseconds
-test_discrete_log_ecc: 75.16 miliseconds
-test_discrete_log_disjunction_ecc: 159.39 miliseconds
-test_discrete_log_equality_ecc: 145.11 miliseconds
-test_pederesen_commitment_ecc: 113.16 miliseconds
-test_pederesen_commitment_eq_msg_rnd_ecc: 230.38 miliseconds
-test_pederesen_commitments_ecc: 219.89 miliseconds
