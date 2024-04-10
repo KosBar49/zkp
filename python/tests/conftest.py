@@ -12,7 +12,7 @@ H = 3
 G2 = 5
 H2 = 7
 
-MODULO = 1019
+MODULO = 13
 
 XP = pow(G, X, MODULO)
 XQ = pow(H, X, MODULO) #for test log equality

@@ -1,5 +1,4 @@
 import random
-import hashlib
 from .elliptic_curve import get_curve
 from .interface_zkp import ZeroKnowledgeProtocol, ZeroKnowledgeProtocolNonInteractive
 from .zkp_base import Base
@@ -78,6 +77,7 @@ class DiscreteLog(ZeroKnowledgeProtocolNonInteractive, Base):
         self._v = self._random.randint(0, self._p - 1)
         t = pow(self._g, self._v, self._p)
         self._c = self._hash([self._g, self._y, t])
+        print(f"c: {self._c}")
         return t, (self._v - self._c * self._x) % (self._p - 1)
 
     def verify(self, s, t):

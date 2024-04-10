@@ -22,6 +22,7 @@ def test_discrete_log(x, g, p, P, hash_function):
     DiscreteLog.supported_hash_name = hash_function
     
     t, s = client_a.response()
+    print(t, s)
     client_b.verify(s, t)
     
 @pytest.mark.ecc

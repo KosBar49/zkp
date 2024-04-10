@@ -2,16 +2,17 @@
 #ifndef DISCRETE_LOG_INTERACTIVE_HPP
 #define DISCRETE_LOG_INTERACTIVE_HPP
 
-#include "ZeroKnowledgeProtocol.hpp"
+#include "ZeroKnowledgeProtocolInteractive.hpp"
 #include <random>
-#include <iostream>
 
-class DiscreteLogInteractive : public ZeroKnowledgeProtocol {
+using namespace std;
+
+class DiscreteLogInteractive : public ZeroKnowledgeProtocolInteractive {
 private:
     int _g, _y, _p, _x, _r, _challenge;
-    std::random_device rd;
-    std::mt19937 gen;
-    std::uniform_int_distribution<> dis;
+    random_device rd;
+    mt19937 gen;
+    uniform_int_distribution<> dis;
 
 public:
     DiscreteLogInteractive(int g, int y, int p, int x = 0 );
