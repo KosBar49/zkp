@@ -68,28 +68,13 @@ class PedersenCommitmentsEqual(ZeroKnowledgeProtocolNonInteractive, Base):
         r1 = random.randint(2, self.p )
         r2 = random.randint(2, self.p )
         
-        print(f"r1:{r1}")
-        print(f"r2:{r2}")
-        
-        print(f"exp(g1, r1):{self._mod_exp(g1, r1)}")
-        print(f"exp(h1, r2):{self._mod_exp(h1, r2)}")
-        print(f"exp(h2, r2):{self._mod_exp(h2, r2)}")
-        print(f"exp(g2, r1):{self._mod_exp(g2, r1)}")
-        
-        
         t1 = (self._mod_exp(g1, r1) * self._mod_exp(h1, r2)) % self.p 
         t2 = (self._mod_exp(g2, r1) * self._mod_exp(h2, r2)) % self.p
-        
-        print(f"t1: {t1}")
-        print(f"t2: {t2}")
         
         c = self._hash([g1, h1, g2, h2, P, Q, t1, t2]) % self.p
         
         s1 = (r1 + c * self._x) % ( self.p - 1)
         s2 = (r2 + c * self._y) % ( self.p - 1)
-        
-        print(f"s1: {s1}")
-        print(f"s2: {s2}")
         
         return (t1, s1), (t2, s2)
     
