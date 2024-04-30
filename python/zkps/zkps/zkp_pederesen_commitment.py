@@ -145,8 +145,8 @@ class PedersenCommitmentEcc(ZeroKnowledgeProtocolNonInteractive):
         r1 = PedersenCommitmentEcc.curve.get_random()
         r2 = PedersenCommitmentEcc.curve.get_random()
 
-        t = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(
-            r1, g), PedersenCommitmentEcc.curve.scalar_mult(r2, h))
+        t = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.mult_point(
+            r1, g), PedersenCommitmentEcc.curve.mult_point(r2, h))
         c = PedersenCommitmentEcc.curve.hash_points([g, h, P, t])
         s1 = ((r1 + c * self._x) % PedersenCommitmentEcc.curve.order)
         s2 = ((r2 + c * self._y) % PedersenCommitmentEcc.curve.order)
@@ -164,9 +164,9 @@ class PedersenCommitmentEcc(ZeroKnowledgeProtocolNonInteractive):
         Raises:
             AssertionError: If the signature is invalid.
         """
-        lhs = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.scalar_mult(
-            s1, g), PedersenCommitmentEcc.curve.scalar_mult(s2, h))
+        lhs = PedersenCommitmentEcc.curve.point_add(PedersenCommitmentEcc.curve.mult_point(
+            s1, g), PedersenCommitmentEcc.curve.mult_point(s2, h))
         c = PedersenCommitmentEcc.curve.hash_points([g, h, P, t])
         rhs = PedersenCommitmentEcc.curve.point_add(
-            t, PedersenCommitmentEcc.curve.scalar_mult(c, P))
+            t, PedersenCommitmentEcc.curve.mult_point(c, P))
         assert (lhs == rhs)

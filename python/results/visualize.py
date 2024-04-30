@@ -1,6 +1,9 @@
 import glob
+from datetime import datetime
 import matplotlib.pyplot as plt
 
+HASH_TYPE = 'md5'
+DATE = datetime.now().strftime('%Y-%m-%d %H%M%S')
 
 # Read the file and parse the test names and their runtimes
 for filename in glob.glob('results_*.txt'):
@@ -23,7 +26,7 @@ for filename in glob.glob('results_*.txt'):
             elif 'ecc' in test_name:
                 test_name = test_name.replace('_ecc', '')
                 ecc_tests[test_name] = runtime
-            else:
+            elif HASH_TYPE in test_name:
                 other_tests[test_name] = runtime
 
     # Define a function for plotting a single category
@@ -40,9 +43,9 @@ for filename in glob.glob('results_*.txt'):
     # Plot each category in its own subplot
     plot_category(axes[0], interactive_tests, 'Interactive Tests', 'lightgreen')
     plot_category(axes[1], ecc_tests, 'ECC Tests', 'lightcoral')
-    plot_category(axes[2], other_tests, 'Non-Inter. Tests', 'lightblue')
+    plot_category(axes[2], other_tests, f'Non-Inter. Tests {HASH_TYPE}', 'lightblue')
 
     # Improve layout to prevent overlap
     plt.tight_layout()
-    name = filename.replace('results_', '').replace('.txt','')+'.png'
+    name = filename.replace(f'results_', '').replace('.txt','')+'.png'
     plt.savefig(name)

@@ -101,8 +101,8 @@ class PederesenCommitmentsEqualMessagesEcc(ZeroKnowledgeProtocolNonInteractive):
         r2 = PederesenCommitmentsEqualMessagesEcc.curve.get_random()
         r3 = PederesenCommitmentsEqualMessagesEcc.curve.get_random()
         
-        t1 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(r1, g1), PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(r2, h1))
-        t2 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(r1, g2), PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(r3, h2))
+        t1 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.mult_point(r1, g1), PederesenCommitmentsEqualMessagesEcc.curve.mult_point(r2, h1))
+        t2 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.mult_point(r1, g2), PederesenCommitmentsEqualMessagesEcc.curve.mult_point(r3, h2))
         
         c = PederesenCommitmentsEqualMessagesEcc.curve.hash_points( [ g1, h1, g2, h2, P, Q, t1, t2 ] )
         
@@ -114,9 +114,9 @@ class PederesenCommitmentsEqualMessagesEcc(ZeroKnowledgeProtocolNonInteractive):
     def verify(self, g1, h1, g2, h2, P, Q, t1s1, t2s2, s3):
         (t1, s1) = t1s1
         (t2, s2) = t2s2
-        lhs1 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(s1, g1), PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(s2, h1))
-        lhs2 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(s1, g2), PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(s3, h2))
+        lhs1 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.mult_point(s1, g1), PederesenCommitmentsEqualMessagesEcc.curve.mult_point(s2, h1))
+        lhs2 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(PederesenCommitmentsEqualMessagesEcc.curve.mult_point(s1, g2), PederesenCommitmentsEqualMessagesEcc.curve.mult_point(s3, h2))
         c = PederesenCommitmentsEqualMessagesEcc.curve.hash_points([g1, h1, g2, h2, P, Q, t1, t2])
-        rhs1 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(t1 , PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(c, P))
-        rhs2 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(t2 , PederesenCommitmentsEqualMessagesEcc.curve.scalar_mult(c, Q))
+        rhs1 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(t1 , PederesenCommitmentsEqualMessagesEcc.curve.mult_point(c, P))
+        rhs2 = PederesenCommitmentsEqualMessagesEcc.curve.point_add(t2 , PederesenCommitmentsEqualMessagesEcc.curve.mult_point(c, Q))
         assert lhs1 == rhs1 and lhs2 == rhs2

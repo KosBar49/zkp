@@ -1,4 +1,5 @@
 import random
+from re import S
 from libnum import ecc
 from hashlib import sha512, sha256, md5, sha1
 
@@ -22,6 +23,14 @@ class EllipticCurve(ecc.Curve):
     # def __str__(self):
     #     return f"Curve: {self._type}\nParameters:\n a={self.a}\n b={self.b}\n G={self.G}\n p={self.p}\n n={self.n}"
 
+    @property
+    def hash_function(self):
+        return self._hash_function
+    
+    @property.setter
+    def hash_function(self, hash_function):
+        self._hash_function = hash_function
+    
     def get_generators(self, n=1):
 
         gs = []
@@ -120,7 +129,7 @@ class EllipticCurve(ecc.Curve):
 
         return (y * y - x * x * x - self.a * x - self.b) % self.p == 0
 
-    def scalar_mult(self, k, point):
+    def mult_point(self, k, point):
         """Returns k * point computed using the double and point_add algorithm."""
         assert self.is_on_curve(point)
 
@@ -129,7 +138,7 @@ class EllipticCurve(ecc.Curve):
 
         if k < 0:
             # k * point = -k * (-point)
-            return self.scalar_mult(-k, self.point_neg(point))
+            return self.mult_point(-k, self.point_neg(point))
 
         result = None
         addend = point

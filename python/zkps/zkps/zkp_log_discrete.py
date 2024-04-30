@@ -111,7 +111,7 @@ class DiscreteLogEcc(ZeroKnowledgeProtocolNonInteractive):
         """
         if x:
             self._x = x
-            DiscreteLogEcc.y = DiscreteLogEcc.curve.scalar_mult(
+            DiscreteLogEcc.y = DiscreteLogEcc.curve.mult_point(
                 x, DiscreteLogEcc.curve.g)
 
     def response(self):
@@ -124,7 +124,7 @@ class DiscreteLogEcc(ZeroKnowledgeProtocolNonInteractive):
                 - s (int): The calculated value s.
         """
         r = DiscreteLogEcc.curve.get_random()
-        t = DiscreteLogEcc.curve.scalar_mult(r, DiscreteLogEcc.curve.g)
+        t = DiscreteLogEcc.curve.mult_point(r, DiscreteLogEcc.curve.g)
         c = DiscreteLogEcc.curve.hash_points(
             [DiscreteLogEcc.curve.g, DiscreteLogEcc.y, t])
         s = ((r + c * self._x) % DiscreteLogEcc.curve.order)
@@ -146,7 +146,7 @@ class DiscreteLogEcc(ZeroKnowledgeProtocolNonInteractive):
         """
         c = DiscreteLogEcc.curve.hash_points(
             [DiscreteLogEcc.curve.g, DiscreteLogEcc.y, t])
-        lhs = DiscreteLogEcc.curve.scalar_mult(s, DiscreteLogEcc.curve.g)
-        yc = DiscreteLogEcc.curve.scalar_mult(c, DiscreteLogEcc.y)
+        lhs = DiscreteLogEcc.curve.mult_point(s, DiscreteLogEcc.curve.g)
+        yc = DiscreteLogEcc.curve.mult_point(c, DiscreteLogEcc.y)
         rhs = DiscreteLogEcc.curve.point_add(t, yc)
         assert lhs == rhs

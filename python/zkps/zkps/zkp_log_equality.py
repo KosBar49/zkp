@@ -136,8 +136,8 @@ class DiscreteLogEqualityEcc(ZeroKnowledgeProtocolNonInteractive):
             Tuple[Point, Point, int]: A tuple containing the calculated points t1 and t2, and the calculated integer s.
         """
         r = DiscreteLogEqualityEcc.curve.get_random()
-        t1 = DiscreteLogEqualityEcc.curve.scalar_mult(r, g)
-        t2 = DiscreteLogEqualityEcc.curve.scalar_mult(r, h)
+        t1 = DiscreteLogEqualityEcc.curve.mult_point(r, g)
+        t2 = DiscreteLogEqualityEcc.curve.mult_point(r, h)
         c = DiscreteLogEqualityEcc.curve.hash_points([g, h, P, Q, t1, t2])
         s = ((r + c * self._x) % DiscreteLogEqualityEcc.curve.order)
         return t1, t2, s
@@ -159,10 +159,10 @@ class DiscreteLogEqualityEcc(ZeroKnowledgeProtocolNonInteractive):
             AssertionError: If the equality of the discrete logarithms is not verified.
         """
         c = DiscreteLogEqualityEcc.curve.hash_points([g, h, P, Q, t1, t2])
-        lhs1 = DiscreteLogEqualityEcc.curve.scalar_mult(s, g)
+        lhs1 = DiscreteLogEqualityEcc.curve.mult_point(s, g)
         rhs1 = DiscreteLogEqualityEcc.curve.point_add(
-            t1, DiscreteLogEqualityEcc.curve.scalar_mult(c, P))
-        lhs2 = DiscreteLogEqualityEcc.curve.scalar_mult(s, h)
+            t1, DiscreteLogEqualityEcc.curve.mult_point(c, P))
+        lhs2 = DiscreteLogEqualityEcc.curve.mult_point(s, h)
         rhs2 = DiscreteLogEqualityEcc.curve.point_add(
-            t2, DiscreteLogEqualityEcc.curve.scalar_mult(c, Q))
+            t2, DiscreteLogEqualityEcc.curve.mult_point(c, Q))
         assert (lhs1 == rhs1) and (lhs2 == rhs2)
