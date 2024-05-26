@@ -106,11 +106,13 @@ if __name__ == "__main__":
     Q = y * h
     
     
-    start = utime.ticks_ms()
-    
+    start_response = utime.ticks_ms()
     (t1, s1), (t2, s2) = client_a.response(g, h, P, Q)
+    
+    end_response = utime.ticks_ms()
     client_b.verify(g, h, P, Q, (t1, s1), (t2, s2))
     
-    end = utime.ticks_ms()
-    duration = (end - start) 
-    print( f"time: {duration:.3f}" )
+    end_verify = utime.ticks_us()
+    
+    print( f"time of verify: {end_verify - end_response:.3f}" )
+    print( f"time of response: {end_response - start_response:.3f}" )

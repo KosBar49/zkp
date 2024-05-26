@@ -92,12 +92,15 @@ if __name__ == "__main__":
     client_a = PedersenCommitment(g, h, p, x, y)
     client_b = PedersenCommitment(g, h, p)
     
-    start = utime.ticks_us()
+    start_response = utime.ticks_us()
 
     (t, s1, s2) = client_a.response(P)
+    
+    end_response = utime.ticks_us()
+
     client_b.verify(g, h, P, t, s1, s2)
     
-    end = utime.ticks_us()
-    duration = (end - start) 
+    end_verify = utime.ticks_us()
     
-    print( f"time: {duration:.3f}" )
+    print( f"time of verify: {end_verify - end_response:.3f}" )
+    print( f"time of response: {end_response - start_response:.3f}" )

@@ -78,11 +78,12 @@ if __name__ == "__main__":
     client_a = DiscreteLogEquality(g, h, P, Q, p, x)
     client_b = DiscreteLogEquality(g, h, P, Q, p)
     
-    start = utime.ticks_us()
+    start_response = utime.ticks_us()
     c, s = client_a.response()
+    end_response = utime.ticks_us()
     client_b.verify(c, s)
     
-    end = utime.ticks_us()
-    duration = (end - start) 
-    
-    print( f"time: {duration:.3f}" )
+    end_verify = utime.ticks_us()
+
+    print( f"time of verify: {end_verify - end_response:.3f}" )
+    print( f"time of response: {end_response - start_response:.3f}" )

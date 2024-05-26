@@ -76,12 +76,15 @@ if __name__ == "__main__":
     client_a = DiscreteLogConjunction(g, h, P, Q, p, x, y)
     client_b = DiscreteLogConjunction(g, h, P, Q, p) 
     
-    start = utime.ticks_us()
+    start_response = utime.ticks_us()
     
     (t1, s1), (t2, s2) = client_a.response()
+    
+    end_response = utime.ticks_us()
+
     client_b.verify((t1, s1), (t2, s2))
     
-    end = utime.ticks_us()
-    duration = (end - start) 
+    end_verify = utime.ticks_us()
     
-    print( f"time: {duration:.3f}" )
+    print( f"time of verify: {end_verify - end_response:.3f}" )
+    print( f"time of response: {end_response - start_response:.3f}" )

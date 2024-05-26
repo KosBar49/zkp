@@ -94,7 +94,7 @@ class DiscreteLogEqualityEcc():
             AssertionError: If the equality of the discrete logarithms is not verified.
         """
         c = self.hash_points([g, h, P, Q, t1, t2])
-        lhs1 = s *g
+        lhs1 = s * g
         rhs1 = t1 + (c * P)
         lhs2 = s * h
         rhs2 = t2 + (c * Q)
@@ -110,10 +110,12 @@ if __name__ == "__main__":
     Q = x * h
     client_a = DiscreteLogEqualityEcc(x)
     
-    start = utime.ticks_ms()
+    start_response = utime.ticks_ms()
     (t1, t2, s) = client_a.response(g, h, P, Q)
+    end_response = utime.ticks_us()
     client_b.verify(g, h, P, Q, t1, t2, s)
     
-    end = utime.ticks_ms()
-    duration = (end - start) 
-    print( f"time: {duration:.3f}" )
+    end_verify = utime.ticks_us()
+
+    print( f"time of verify: {end_verify - end_response:.3f}" )
+    print( f"time of response: {end_response - start_response:.3f}" )

@@ -90,9 +90,15 @@ if __name__ == "__main__":
     client_a = DiscreteLogEcc(5)
     client_b = DiscreteLogEcc()
     
+    start_response = utime.ticks_us()
+    
     (t, s) = client_a.response()
+    
+    end_response = utime.ticks_us()
+
     client_b.verify(s, t)
     
-    end = utime.ticks_ms()
-    duration = (end - start) 
-    print( f"time: {duration:.3f}" )
+    end_verify = utime.ticks_us()
+    
+    print( f"time of verify: {end_verify - end_response:.3f}" )
+    print( f"time of response: {end_response - start_response:.3f}" )

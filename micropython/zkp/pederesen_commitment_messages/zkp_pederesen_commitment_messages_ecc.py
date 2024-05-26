@@ -3,8 +3,9 @@ import random
 import hashlib
 import utime
 
-class PedersenCommitmentEcc():
 
+class PederesenCommitmentsEqualMessagesEcc():
+    
     curve = ECC.Curve(
         0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff,
         -0x3,
@@ -13,11 +14,12 @@ class PedersenCommitmentEcc():
         0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296,
         0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5
     )
-
-    def __init__(self, x=None, y=None) -> None:
-        if x and y:
+    
+    def __init__(self, x = None, y = None, z = None) -> None:
+        if x and y and z:
             self._x = x
             self._y = y
+            self._z = z
             
     def hash_list(self, list_):
         hash = hashlib.sha256()
@@ -44,62 +46,66 @@ class PedersenCommitmentEcc():
         gs = []
         
         for _ in range(n):
-            s = self.randint(0, PedersenCommitmentEcc.curve.q - 1)
-            gs.append( s * PedersenCommitmentEcc.curve.G )
+            s = self.randint(0, PederesenCommitmentsEqualMessagesEcc.curve.q - 1)
+            gs.append( s * PederesenCommitmentsEqualMessagesEcc.curve.G )
             
         return gs
-
-    def response(self, g, h, P):
+    
+    def response(self, g1, h1, g2, h2, P, Q):
         
-        q = PedersenCommitmentEcc.curve.q
+        q = PederesenCommitmentsEqualMessagesEcc.curve.q
+        
         r1 = self.randint(0, q - 1)
         r2 = self.randint(0, q - 1)
-
-        t = (r1 * g) + (r2 * h)
-        c = self.hash_points([g, h, P, t])
-        s1 = ((r1 + c * self._x) % q)
-        s2 = ((r2 + c * self._y) % q)
-        return t, s1, s2
-
-    def verify(self, g, h, P, t, s1, s2):
-        """
-        Verify the validity of a given signature.
-        Parameters:
-            r (int): The r value of the signature.
-            c (int): The c value of the signature.
-            V (int): The V value of the signature.
-        Returns:
-            None
-        Raises:
-            AssertionError: If the signature is invalid.
-        """
-        lhs = (s1 * g) + (s2 * h)
-        c = self.hash_points([g, h, P, t])
-        rhs = t + (c * P)
-        assert (lhs == rhs)
+        r3 = self.randint(0, q - 1)
+        
+        t1 = (r1 * g1) + (r2 * h1)
+        t2 = (r1 * g2) + (r3 * h2)
+        
+        c = self.hash_points( [ g1, h1, g2, h2, P, Q, t1, t2 ] )
+        
+        s1 = ((r1 + c * self._x) % q )
+        s2 = ((r2 + c * self._y) % q )
+        s3 = ((r3 + c * self._z) % q )
+        
+        return (t1, s1), (t2, s2), s3
+    
+    def verify(self, g1, h1, g2, h2, P, Q, t1s1, t2s2, s3):
+        (t1, s1) = t1s1
+        (t2, s2) = t2s2
+        
+        lhs1 = (s1 * g1) + (s2 * h1)
+        lhs2 = (s1 * g2) + (s3 * h2)
+        
+        c = self.hash_points([g1, h1, g2, h2, P, Q, t1, t2])
+        
+        rhs1 = t1 + (c * P)
+        rhs2 = t2 + (c * Q)
+        
+        assert lhs1 == rhs1 and lhs2 == rhs2
 
 if __name__ == "__main__":
     
-    g = 2
-    h = 3
     x = 5
     y = 7
+    z = 9
     p = 1019
     
-    client_a = PedersenCommitmentEcc(x, y)
-    client_b = PedersenCommitmentEcc()
-    g, h = client_b.get_generators(2)
+    client_b = PederesenCommitmentsEqualMessagesEcc()
+    g1, h1, g2, h2 = client_b.get_generators(4)
     
-    P = (x * g) + (y * h)
+    P = (x * g1) + (y * h1)
+    Q = (x * g2) + (z * h2)
     
-    start_response = utime.ticks_us()
-        
-    (t, s1, s2) = client_a.response(g, h, P)
+    client_a = PederesenCommitmentsEqualMessagesEcc(x, y, z)
+    
+    start_response= utime.ticks_us()
+    
+    (t1, s1), (t2, s2), s3 = client_a.response(g1, h1, g2, h2, P, Q)
     
     end_response = utime.ticks_us()
-    
-    client_b.verify(g, h, P, t, s1, s2)
-    
+
+    client_b.verify(g1, h1, g2, h2, P, Q, (t1, s1), (t2, s2), s3)
     end_verify = utime.ticks_us()
     
     print( f"time of verify: {end_verify - end_response:.3f}" )
