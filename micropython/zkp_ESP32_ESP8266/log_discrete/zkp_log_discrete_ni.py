@@ -1,6 +1,36 @@
 import random
 import hashlib
 import utime 
+from ecc import randint
+
+def extended_gcd(a, b):
+    if a == 0:
+        return b, 0, 1
+    gcd, x1, y1 = extended_gcd(b % a, a)
+    x = y1 - (b // a) * x1
+    y = x1
+    return gcd, x, y
+
+def mod_inv(a, mod):
+    gcd, x, _ = extended_gcd(a, mod)
+    if gcd != 1:
+        raise ValueError(f"No modular inverse for {a} mod {mod}")
+    return x % mod
+
+def mod_exp(base, exp, mod):
+    if exp < 0:
+        # Compute the modular inverse of base^(-exp)
+        base = mod_inv(base, mod)
+        exp = -exp
+    
+    result = 1
+    base = base % mod
+    while exp > 0:
+        if (exp % 2) == 1:  # If exp is odd, multiply base with result
+            result = (result * base) % mod
+        exp = exp >> 1  # exp = exp // 2
+        base = (base * base) % mod  # Change base to base^2
+    return result
 
 class DiscreteLog():
     """
@@ -34,10 +64,10 @@ class DiscreteLog():
         Returns:
             int: The calculated response value.
         """
-        self._v = self._random.randint(0, self._p - 1)
-        t = pow(self._g, self._v, self._p)
+        self._v = randint(self._p)
+        t = mod_exp(self._g, self._v, self._p)
         self._c = self._hash([self._g, self._y, t])
-        return t, (self._v - self._c * self._x) % (self._p - 1)
+        return t, (self._v - self._c * self._x) #% (self._p - 1)
 
     def verify(self, s, t):
         """
@@ -52,17 +82,17 @@ class DiscreteLog():
             AssertionError: If the signature is invalid.
         """        
         c = self._hash([self._g, self._y, t])
-        check = (pow(self._g, s, self._p) * pow(self._y, c, self._p)) % self._p
+        check = ( mod_exp(self._g, s, self._p) * mod_exp(self._y, c, self._p)) % self._p
         assert t == check
 
 if __name__ == "__main__":
 
-    g = 2
-    x = 3
-    P = g ** x
-    p = 5
+    g = 5
+    x = 762255500
+    p = 170154366828665079503315635359566390626153860097410117673698414542663355444709893966571750073322692712277666971313348160841835991041384679700511912064982526249529596585220499141442747333138443745082395711957231040341599508490720584345044145678716964326909852653412051765274781142172235546768485104821112642811
+    #p = 57896044618658097711785492504343953926634992332820282019728792003956564819968
+    P = mod_exp(g, x, p)
 
-    
     client_a = DiscreteLog(g, P, p, x)
     client_b = DiscreteLog(g, P, p)
     

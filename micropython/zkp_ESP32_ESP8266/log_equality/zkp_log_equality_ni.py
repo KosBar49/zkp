@@ -1,6 +1,36 @@
 import hashlib
 import random
 import utime
+from ecc import randint
+
+def extended_gcd(a, b):
+    if a == 0:
+        return b, 0, 1
+    gcd, x1, y1 = extended_gcd(b % a, a)
+    x = y1 - (b // a) * x1
+    y = x1
+    return gcd, x, y
+
+def mod_inv(a, mod):
+    gcd, x, _ = extended_gcd(a, mod)
+    if gcd != 1:
+        raise ValueError(f"No modular inverse for {a} mod {mod}")
+    return x % mod
+
+def mod_exp(base, exp, mod):
+    if exp < 0:
+        # Compute the modular inverse of base^(-exp)
+        base = mod_inv(base, mod)
+        exp = -exp
+    
+    result = 1
+    base = base % mod
+    while exp > 0:
+        if (exp % 2) == 1:  # If exp is odd, multiply base with result
+            result = (result * base) % mod
+        exp = exp >> 1  # exp = exp // 2
+        base = (base * base) % mod  # Change base to base^2
+    return result
 
 class DiscreteLogEquality():
     """
@@ -17,17 +47,6 @@ class DiscreteLogEquality():
         self._x = x
         self._random = random
         
-    def randint(self, a, b):
-        if a >= 0 and b >= 0:
-            if b - a < 2**31:
-                return random.randint(a, b)
-            else:
-                high = (b - a) // (2**31 - 1) + 1
-                low = (b - a) % (2**31 - 1)
-                return a + high * random.randint(0, (2**31 - 1) - 1) + random.randint(0, low)
-        else:
-            raise ValueError("Both a and b must be non-negative")
-        
     def _hash(self, itmes):
         s_ = ''
         h = hashlib.sha256()
@@ -41,13 +60,13 @@ class DiscreteLogEquality():
         Calculates the response value based on the current object state.
         :return: The calculated response value.
         """
-        self._v = self._random.randint(0, self._p - 1)
-        self._vG = pow(self._g, self._v, self._p)
-        self._vH = pow(self._h, self._v, self._p)
+        self._v = randint(self._p - 1)
+        self._vG = mod_exp(self._g, self._v, self._p)
+        self._vH = mod_exp(self._h, self._v, self._p)
         
         self._c = self._hash([self._vG, self._vH, self._g, self._h])
 
-        self._r = (self._v - self._x * self._c) % (self._p - 1)
+        self._r = (self._v - self._x * self._c) #% (self._p - 1)
         return self._c, self._r
 
     def verify(self, c, r):
@@ -59,21 +78,21 @@ class DiscreteLogEquality():
         Returns:
             None
         """
-        v1 = (pow(self._g, r, self._p) * pow(self._P, c, self._p)) % self._p
-        v2 = (pow(self._h, r, self._p) * pow(self._Q, c, self._p)) % self._p
+        v1 = ( ( mod_exp(self._g, r, self._p) ) * (mod_exp(self._P, c, self._p))) % self._p
+        v2 = ( ( mod_exp(self._h, r, self._p )) * (mod_exp(self._Q, c, self._p))) % self._p
         
         c1 = self._hash([v1, v2, self._g, self._h])
         assert c == c1
 
 if __name__ == "__main__":
     
-    g = 2
+    g = 5
     h = 3
-    x = 5
-    p = 1019
-        
-    P = pow(g, x, p)
-    Q = pow(h, x, p)
+    x = 762255500
+    #p = 57896044618658097711785492504343953926634992332820282019728792003956564819968
+    p = 170154366828665079503315635359566390626153860097410117673698414542663355444709893966571750073322692712277666971313348160841835991041384679700511912064982526249529596585220499141442747333138443745082395711957231040341599508490720584345044145678716964326909852653412051765274781142172235546768485104821112642811
+    P = mod_exp(g, x, p)
+    Q = mod_exp(h, x ,p)
     
     client_a = DiscreteLogEquality(g, h, P, Q, p, x)
     client_b = DiscreteLogEquality(g, h, P, Q, p)

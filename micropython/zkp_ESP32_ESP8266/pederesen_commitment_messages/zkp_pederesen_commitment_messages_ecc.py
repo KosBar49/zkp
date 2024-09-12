@@ -94,7 +94,6 @@ if __name__ == "__main__":
     x = 5
     y = 7
     z = 9
-    p = 1019
     
     client_b = PederesenCommitmentsEqualMessagesEcc()
     g1, h1, g2, h2 = client_b.get_generators(4)

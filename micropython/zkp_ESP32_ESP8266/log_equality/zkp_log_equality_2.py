@@ -1,5 +1,5 @@
 import random
-import utime
+# import utime
 from ecc import randint
 
 def extended_gcd(a, b):
@@ -50,16 +50,19 @@ class DiscreteLogDisjunctionInteractive():
         """
         Generates commitments for the protocol.
         """
-        self._v = randint(self._p - 1)
+        self._v = 26211229949366594240734546754800349145751146553389310720601189706030232364193 #randint(self._p - 1)
+        print(self._v)
         self._vG = mod_exp(self._g, self._v, self._p)
+        print(f"vG: {self._vG}")
         self._vH = mod_exp(self._h, self._v, self._p)
+        print(f"vH: {self._vH}")
         return self._vG, self._vH
 
     def challenge(self) -> int:
         """
         Generates a random challenge value.
         """
-        self._c = randint(self._p - 1)
+        self._c = 36012301591122411747432064042255888726810852711039282800059221339516455273659 #randint(self._p - 1)
         return self._c
 
     def response(self, c: int) -> int:
@@ -74,10 +77,17 @@ class DiscreteLogDisjunctionInteractive():
         Verifies the ZKP given the challenge, response, and commitments.
         """
         # Calculate the verification values using the prover's response
+        print(f"g: {self._g}")
+        print(f"r {r}")
+        print(f"first: {mod_exp(self._g, r, self._p)}")
         v1 = (mod_exp(self._g, r, self._p) * mod_exp(self._xG, c, self._p )) % self._p
         v2 = (mod_exp(self._h, r, self._p) * mod_exp(self._xH, c, self._p )) % self._p
 
         # Check if the recalculated commitments match the original commitments
+        print(f"v1: {v1}")
+        print(f"vG: {vG}")
+        print(f"v2: {v2}")
+        print(f"vH: {vH}")
         assert v1 == vG
         assert v2 == vH
 
@@ -86,15 +96,15 @@ if __name__ == "__main__":
     g = 5
     h = 3
     x = 762255500
-    #p = 57896044618658097711785492504343953926634992332820282019728792003956564819968
-    p = 170154366828665079503315635359566390626153860097410117673698414542663355444709893966571750073322692712277666971313348160841835991041384679700511912064982526249529596585220499141442747333138443745082395711957231040341599508490720584345044145678716964326909852653412051765274781142172235546768485104821112642811
+    p = 57896044618658097711785492504343953926634992332820282019728792003956564819968
+        
     P = mod_exp(g, x, p)
     Q = mod_exp(h, x, p)
 
     client_a = DiscreteLogDisjunctionInteractive(g, h, P, Q, p, x)
     client_b = DiscreteLogDisjunctionInteractive(g, h, P, Q, p)
     
-    start_response = utime.ticks_us()
+    #start_response = utime.ticks_us()
 
     t1, t2 = client_a.commitments()
     
@@ -102,11 +112,11 @@ if __name__ == "__main__":
     
     s = client_a.response(c)
     
-    end_response = utime.ticks_us()
+    #end_response = utime.ticks_us()
     
     client_b.verify(c, s, t1, t2)
     
-    end_verify = utime.ticks_us()
+    #end_verify = utime.ticks_us()
 
-    print( f"time of verify: {end_verify - end_response:.3f}" )
-    print( f"time of response: {end_response - start_response:.3f}" )
+    #print( f"time of verify: {end_verify - end_response:.3f}" )
+    #print( f"time of response: {end_response - start_response:.3f}" )
