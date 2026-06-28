@@ -67,7 +67,7 @@ class DiscreteLogInteractive():
 
         :return: response (x * c + r mod p - 1)
         """
-        return (self._x * challenge + self._r) #% (self._p - 1)
+        return (self._x * challenge + self._r) % (self._p - 1)
 
     def verify(self, response, commitment):
         """

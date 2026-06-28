@@ -83,7 +83,7 @@ if __name__ == "__main__":
     P = x * g
     Q = y * h
     
-    start_response = utime.ticks_ms()
+    start_response = utime.ticks_us()
     
     t1c1s1, t2c2s2 = client_a.response(g, h, P, Q)
     end_response = utime.ticks_us()

@@ -60,13 +60,10 @@ class PedersenCommitmentEcc():
         assert (lhs == rhs)
 
 if __name__ == "__main__":
-    
-    g = 2
-    h = 3
+
     x = 5
     y = 7
-    p = 1019
-    
+
     client_a = PedersenCommitmentEcc(x, y)
     client_b = PedersenCommitmentEcc()
     g, h = client_b.get_generators(2)
